@@ -147,7 +147,6 @@ CFBundleRef LoadBundle(const char* lpBundlePath)
 	{
 		return NULL;
 	}
-#endif
 	
 	// 2.get bundle ref
 	CFBundleRef bundleRef = CFBundleCreate(kCFAllocatorSystemDefault, bundleURL);

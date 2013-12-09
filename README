@@ -1,0 +1,70 @@
+PREREQUISITES
+- python
+- nasm (for Linux, we don't currently build assembly on Mac)
+- gyp (https://code.google.com/p/gyp/)
+
+
+BUILD INSTRUCTIONS
+
+1. First run setup.sh to build the makefiles
+
+./setup.sh
+
+
+2. Then build:
+
+make -C build    (to build debug)
+make -C build BUILDTYPE=Release  (to build opt)
+
+
+The binaries will end up in build/out/Default.
+
+ENCODER (encode264)
+
+To run:
+encode264 <input> <output> -sw <width> -sh <height
+NOTE: The encoder always pads out to 1280x720. We are working
+on fixing this.
+
+
+DECODER (decode264):
+To run:
+decode264 <input> <output>
+
+
+
+
+
+
+
+
+
+
+
+----- Original Cisco instructions below this line -----
+###### Please go to the testbin folder ######
+For Cleaning existing encoder & decoder executable files:
+/testbin/AutoClean_Linux.sh
+
+For Building encoder & decoder:
+/testbin/AutoBuild_Linux.sh
+(Dependency: encoder needs to work with the dll of welsvp)
+
+For Running encoder & decoder:
+/testbin/CmdLineReadMe
+/testbin/CmdLineExample.sh
+(to linux users: please make sure the encoder/decoder files to be executable before trying to enoode/decode
+
+###### Folder Relationship ######
+testbin/: configuration files and source yuv files for instant testing
+codec/:    source files for encoder and decoder
+processing/:  source files for video preprocessing, the lib of welsvp is required by encoder
+
+###### Needed by Assembly Codes ######
+NASM needed to be installed: workable version 2.07 or above, nasm can be achieved at http://www.nasm.us/
+
+/*********** Windows Build ***************/
+Build verified on Microsoft Visual Studio 2008/2010/2012 (32bit)
+
+/*********** Linux Build ***************/
+Build verified on: CentOS 5.2 (32bit) and Ubuntu 10.04.1 (32bit)

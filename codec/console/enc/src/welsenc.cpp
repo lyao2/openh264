@@ -473,7 +473,18 @@ int ParseCommandLine( int argc, char ** argv, SVCEncodingParam & sParam)
 			int iSpatialBitrate = atoi( argv[i+2] );
 			sParam.sSpatialLayers[iLayer].iSpatialBitrate	= iSpatialBitrate;
 			i += 3;
-		} else {
+		} else if( !strcmp(pCmd,"-sw") )
+		{
+                        int iWidth = atoi (argv[i+1]);
+			sParam.iPicWidth = iWidth;
+			i += 2;
+		} else if( !strcmp(pCmd,"-sh") )
+		{
+                        int iHeight = atoi (argv[i+1]);
+			sParam.iPicHeight = iHeight;
+			i += 2;
+		} 
+                else {
 			i ++;
 		}		
 	}
