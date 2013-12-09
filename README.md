@@ -58,12 +58,12 @@ Build Instructions
 -----------------------
 - First run setup.sh to build the makefiles
 
->./setup.sh
+-- ./setup.sh
 
 - Then build:
 
->make -C build    (to build debug)
->make -C build BUILDTYPE=Release  (to build opt)
+-- make -C build    (to build debug)
+-- make -C build BUILDTYPE=Release  (to build opt)
 
 The binaries will end up in build/out/Default.
  
