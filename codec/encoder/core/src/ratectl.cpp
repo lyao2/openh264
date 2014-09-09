@@ -554,7 +554,7 @@ void RcDecideTargetBits (sWelsEncCtx* pEncCtx) {
                                            pWelsSvcRc->iRemainingWeights);
     else //this case should be not hit. needs to more test case to verify this
       pWelsSvcRc->iTargetBits = pWelsSvcRc->iRemainingBits;
-    if ((pWelsSvcRc->iTargetBits <= 0) && ((pEncCtx->pSvcParam->iRCMode == RC_LOW_BW_MODE) || 
+    if ((pWelsSvcRc->iTargetBits <= 0) && ((pEncCtx->pSvcParam->iRCMode == RC_LOW_BW_MODE) ||
       ((pEncCtx->pSvcParam->iRCMode == RC_BITRATE_MODE) && (pEncCtx->pSvcParam->bEnableFrameSkip == false)))) {
       pWelsSvcRc->iCurrentBitsLevel = BITS_EXCEEDED;
     } else if ((pWelsSvcRc->iTargetBits <= pTOverRc->iMinBitsTl) && (pEncCtx->pSvcParam->iRCMode == RC_LOW_BW_MODE)) {
