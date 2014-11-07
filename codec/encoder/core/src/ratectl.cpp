@@ -300,7 +300,7 @@ void RcInitRefreshParameter (sWelsEncCtx* pEncCtx) {
   }
 
   pWelsSvcRc->iBufferFullnessSkip = 0;
-  pWelsSvcRc->iBufferMaxBitrateSkip = 0;
+  pWelsSvcRc->iBufferFullnessMaxBRSkip = 0;
   pWelsSvcRc->iPredFrameBit = 0;
   pWelsSvcRc->iBufferFullnessPadding = 0;
 
@@ -705,19 +705,10 @@ void   RcVBufferCalculationSkip (sWelsEncCtx* pEncCtx) {
   const int32_t kiOutputBits = WELS_DIV_ROUND (pWelsSvcRc->iBitsPerFrame, INT_MULTIPLY);
   //condition 1: whole pBuffer fullness
   pWelsSvcRc->iBufferFullnessSkip += (pWelsSvcRc->iFrameDqBits - kiOutputBits);
-  pWelsSvcRc->iBufferMaxBitrateSkip += (pWelsSvcRc->iFrameDqBits - WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY));
-
-  const double dLastFrameBitsRatio =  pWelsSvcRc->iFrameDqBits / kiOutputBits;
-  if (dLastFrameBitsRatio > HUGE_FRAMEBIT_RATIO)
-    pWelsSvcRc->iSkipBufferRatio -= 3 * SKIP_RATIO_STEP;
-  else if (dLastFrameBitsRatio > MEDIUM_FRAMEBIT_RATIO)
-    pWelsSvcRc->iSkipBufferRatio -= SKIP_RATIO_STEP;
-
-  pWelsSvcRc->iSkipBufferRatio = WELS_CLIP3 (pWelsSvcRc->iSkipBufferRatio, MIN_SKIP_RATIO, MAX_SKIP_RATIO);
-  pWelsSvcRc->iBufferSizeSkip = WELS_DIV_ROUND (pWelsSvcRc->iBitRate * pWelsSvcRc->iSkipBufferRatio, INT_MULTIPLY);
+  pWelsSvcRc->iBufferFullnessMaxBRSkip += (pWelsSvcRc->iFrameDqBits - WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY));
 
   WelsLog (& (pEncCtx->sLogCtx), WELS_LOG_DEBUG,"[Rc] bits in buffer = %d, bits in Max bitrate buffer = %d",
-    pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferMaxBitrateSkip);
+    pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferFullnessMaxBRSkip);
   //condition 2: VGOP bits constraint
   int32_t iVGopBitsPred = 0;
   for (int32_t i = pWelsSvcRc->iFrameCodedInVGop + 1; i < VGOP_SIZE; i++)
@@ -731,12 +722,11 @@ void   RcVBufferCalculationSkip (sWelsEncCtx* pEncCtx) {
       || (dIncPercent > pWelsSvcRc->iRcVaryPercentage)) {
     pEncCtx->iSkipFrameFlag = 1;
     pWelsSvcRc->iBufferFullnessSkip = pWelsSvcRc->iBufferFullnessSkip - kiOutputBits;
-    pWelsSvcRc->iBufferMaxBitrateSkip -= (WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY));
+    pWelsSvcRc->iBufferFullnessMaxBRSkip -= (WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY));
     WelsLog (& (pEncCtx->sLogCtx), WELS_LOG_DEBUG,"[Rc] bits in buffer = %d, bits in Max bitrate buffer = %d",
-      pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferMaxBitrateSkip);
+      pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferFullnessMaxBRSkip);
   }
   if(pWelsSvcRc->iBufferFullnessSkip < 0) {
-    pWelsSvcRc->iSkipBufferRatio += SKIP_RATIO_STEP;
     pWelsSvcRc->iBufferFullnessSkip = 0;
   }
 
@@ -756,20 +746,19 @@ void WelsRcFrameDelayJudge (void* pCtx, EVideoFrameType eFrameType, long long ui
   int32_t iSentBits = WELS_ROUND (pDLayerParam->iSpatialBitrate / pDLayerParamInternal->fOutputFrameRate);
 
   pWelsSvcRc->bSkipFlag = false;
-  const int32_t iAvailbleBitsInTimeWindow = (TimeCheckWindow - pEncCtx->iCheckWindowInterval - 1000/pDLayerParamInternal->fOutputFrameRate) *
+  const int32_t iAvailableBitsInTimeWindow = (TIME_CHECK_WINDOW - pEncCtx->iCheckWindowInterval - 1000/pDLayerParamInternal->fOutputFrameRate) *
     (pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate)/1000;
   if (pWelsSvcRc->iBufferFullnessSkip > pWelsSvcRc->iBufferSizeSkip ||
-    ((pEncCtx->iCheckWindowInterval>TimeCheckPoint) && (pWelsSvcRc->iBufferMaxBitrateSkip + pWelsSvcRc-> iPredFrameBit - iAvailbleBitsInTimeWindow>0))) {
+    ((pEncCtx->iCheckWindowInterval>TIME_CHECK_WINDOW/2) && (pWelsSvcRc->iBufferFullnessMaxBRSkip + pWelsSvcRc-> iPredFrameBit - iAvailableBitsInTimeWindow>0))) {
     pWelsSvcRc->bSkipFlag = true;
     pWelsSvcRc->iSkipFrameNum++;
     pWelsSvcRc->iSkipFrameInVGop++;
     pWelsSvcRc->iBufferFullnessSkip -= iSentBits;
     pWelsSvcRc->iRemainingBits +=  iSentBits;
-    pWelsSvcRc->iBufferMaxBitrateSkip -=WELS_ROUND (pDLayerParam->iMaxSpatialBitrate / pDLayerParamInternal->fOutputFrameRate);
+    pWelsSvcRc->iBufferFullnessMaxBRSkip -=WELS_ROUND (pDLayerParam->iMaxSpatialBitrate / pDLayerParamInternal->fOutputFrameRate);
     WelsLog (& (pEncCtx->sLogCtx), WELS_LOG_DEBUG,"[Rc] bits in buffer = %d, bits in Max bitrate buffer = %d",
-      pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferMaxBitrateSkip);
+      pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferFullnessMaxBRSkip);
     if(pWelsSvcRc->iBufferFullnessSkip < 0) {
-      pWelsSvcRc->iSkipBufferRatio += SKIP_RATIO_STEP;
       pWelsSvcRc->iBufferFullnessSkip = 0;
     }
   }

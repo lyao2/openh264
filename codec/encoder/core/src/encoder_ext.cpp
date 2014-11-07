@@ -3065,12 +3065,12 @@ int32_t WelsEncoderEncodeExt (sWelsEncCtx* pCtx, SFrameBSInfo* pFbi, const SSour
   }
   pCtx->iCheckWindowInterval = pCtx->iCheckWindowCurrentTs - pCtx->iCheckWindowStartTs;
 
-  if(pCtx->iCheckWindowInterval >= TimeCheckWindow || pCtx->iCheckWindowInterval == 0) {
+  if(pCtx->iCheckWindowInterval >= TIME_CHECK_WINDOW || pCtx->iCheckWindowInterval == 0) {
     pCtx->iCheckWindowStartTs = pCtx->iCheckWindowCurrentTs;
     pCtx->iCheckWindowInterval = 0;
     for (int32_t i = 0; i < iSpatialNum; i++) {
       int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
-      pCtx->pWelsSvcRc[iCurDid].iBufferMaxBitrateSkip = 0;
+      pCtx->pWelsSvcRc[iCurDid].iBufferFullnessMaxBRSkip = 0;
       pCtx->pWelsSvcRc[iCurDid].iPredFrameBit = 0;
     }
   }

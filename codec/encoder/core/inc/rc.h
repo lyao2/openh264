@@ -119,14 +119,8 @@ enum {
 #define SMOOTH_FACTOR_MIN_VALUE 2 // *INT_MULTIPLY
 //#define VGOP_BITS_MIN_RATIO 0.8
 //skip and padding
-#define TimeCheckWindow 2000 // ms
-#define TimeCheckPoint 799 // ms
+#define TIME_CHECK_WINDOW 2000 // ms
 #define SKIP_RATIO  50 // *INT_MULTIPLY
-#define MIN_SKIP_RATIO  20
-#define MAX_SKIP_RATIO  70
-#define SKIP_RATIO_STEP 10
-#define HUGE_FRAMEBIT_RATIO 5
-#define MEDIUM_FRAMEBIT_RATIO 2
 #define LAST_FRAME_PREDICT_WEIGHT 0.8
 #define PADDING_BUFFER_RATIO 50 // *INT_MULTIPLY
 #define PADDING_THRESHOLD    5 //*INT_MULTIPLY
@@ -219,7 +213,7 @@ int32_t   iLastCalculatedQScale;
 //for skip frame and padding
 int32_t   iBufferSizeSkip;
 int32_t   iBufferFullnessSkip;
-int32_t   iBufferMaxBitrateSkip;
+int32_t   iBufferFullnessMaxBRSkip;
 int32_t   iPredFrameBit;
 int32_t   iBufferSizePadding;
 int32_t   iBufferFullnessPadding;
