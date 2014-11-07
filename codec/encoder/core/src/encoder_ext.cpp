@@ -2990,6 +2990,25 @@ bool CheckFrameSkipBasedMaxbr (sWelsEncCtx* pCtx, int32_t iSpatialNum, EVideoFra
   bool bSkipMustFlag = false;
   if (pCtx->pSvcParam->bEnableFrameSkip) {
     if ((RC_QUALITY_MODE == pCtx->pSvcParam->iRCMode) || (RC_BITRATE_MODE == pCtx->pSvcParam->iRCMode)) {
+
+      if(pCtx->bCheckWindowStatusRefreshFlag) {
+        pCtx->iCheckWindowCurrentTs = uiTimeStamp;
+      } else {
+        pCtx->iCheckWindowCurrentTs = pCtx->iCheckWindowStartTs = uiTimeStamp;
+        pCtx->bCheckWindowStatusRefreshFlag = true;
+      }
+      pCtx->iCheckWindowInterval = pCtx->iCheckWindowCurrentTs - pCtx->iCheckWindowStartTs;
+
+      if(pCtx->iCheckWindowInterval >= TIME_CHECK_WINDOW || pCtx->iCheckWindowInterval == 0) {
+        pCtx->iCheckWindowStartTs = pCtx->iCheckWindowCurrentTs;
+        pCtx->iCheckWindowInterval = 0;
+        for (int32_t i = 0; i < iSpatialNum; i++) {
+          int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
+          pCtx->pWelsSvcRc[iCurDid].iBufferFullnessMaxBRSkip = 0;
+          pCtx->pWelsSvcRc[iCurDid].iPredFrameBit = 0;
+        }
+      }
+
       for (int32_t i = 0; i < iSpatialNum; i++) {
         if (0 == pCtx->pSvcParam->sSpatialLayers[i].iMaxSpatialBitrate) {
           break;
@@ -3056,24 +3075,6 @@ int32_t WelsEncoderEncodeExt (sWelsEncCtx* pCtx, SFrameBSInfo* pFbi, const SSour
   pFbi->uiTimeStamp = pSrcPic->uiTimeStamp;
   // perform csc/denoise/downsample/padding, generate spatial layers
   iSpatialNum = pCtx->pVpp->BuildSpatialPicList (pCtx, pSrcPic);
-
-  if(pCtx->bCheckWindowStatusRefreshFlag) {
-    pCtx->iCheckWindowCurrentTs = pSrcPic->uiTimeStamp;
-  } else {
-    pCtx->iCheckWindowCurrentTs = pCtx->iCheckWindowStartTs = pSrcPic->uiTimeStamp;
-    pCtx->bCheckWindowStatusRefreshFlag = true;
-  }
-  pCtx->iCheckWindowInterval = pCtx->iCheckWindowCurrentTs - pCtx->iCheckWindowStartTs;
-
-  if(pCtx->iCheckWindowInterval >= TIME_CHECK_WINDOW || pCtx->iCheckWindowInterval == 0) {
-    pCtx->iCheckWindowStartTs = pCtx->iCheckWindowCurrentTs;
-    pCtx->iCheckWindowInterval = 0;
-    for (int32_t i = 0; i < iSpatialNum; i++) {
-      int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
-      pCtx->pWelsSvcRc[iCurDid].iBufferFullnessMaxBRSkip = 0;
-      pCtx->pWelsSvcRc[iCurDid].iPredFrameBit = 0;
-    }
-  }
 
   if (iSpatialNum < 1) {	// skip due to temporal layer settings (different frame rate)
     ++ pCtx->iCodingIndex;
