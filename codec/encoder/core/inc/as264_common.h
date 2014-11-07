@@ -75,7 +75,7 @@ $(TargetPath)
 #endif//__UNITTEST__
 
 //#define ENABLE_PSNR_CALC
-#define STAT_OUTPUT
+//#define STAT_OUTPUT
 //#define MB_TYPES_CHECK
 //
 //#define FRAME_INFO_OUTPUT
