@@ -746,8 +746,9 @@ void WelsRcFrameDelayJudge (void* pCtx, EVideoFrameType eFrameType, long long ui
   int32_t iSentBits = WELS_ROUND (pDLayerParam->iSpatialBitrate / pDLayerParamInternal->fOutputFrameRate);
 
   pWelsSvcRc->bSkipFlag = false;
-  const int32_t iAvailableBitsInTimeWindow = (TIME_CHECK_WINDOW - pEncCtx->iCheckWindowInterval - 1000/pDLayerParamInternal->fOutputFrameRate) *
-    (pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate)/1000;
+  const int32_t iAvailableBitsInTimeWindow = WELS_DIV_ROUND ((TIME_CHECK_WINDOW - pEncCtx->iCheckWindowInterval)*
+    pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate, 1000) - WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY);
+
   if (pWelsSvcRc->iBufferFullnessSkip > pWelsSvcRc->iBufferSizeSkip ||
     ((pEncCtx->iCheckWindowInterval>TIME_CHECK_WINDOW/2) && (pWelsSvcRc->iBufferFullnessMaxBRSkip + pWelsSvcRc-> iPredFrameBit - iAvailableBitsInTimeWindow>0))) {
     pWelsSvcRc->bSkipFlag = true;
@@ -755,7 +756,7 @@ void WelsRcFrameDelayJudge (void* pCtx, EVideoFrameType eFrameType, long long ui
     pWelsSvcRc->iSkipFrameInVGop++;
     pWelsSvcRc->iBufferFullnessSkip -= iSentBits;
     pWelsSvcRc->iRemainingBits +=  iSentBits;
-    pWelsSvcRc->iBufferFullnessMaxBRSkip -=WELS_ROUND (pDLayerParam->iMaxSpatialBitrate / pDLayerParamInternal->fOutputFrameRate);
+    pWelsSvcRc->iBufferFullnessMaxBRSkip -= WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY);
     WelsLog (& (pEncCtx->sLogCtx), WELS_LOG_DEBUG,"[Rc] bits in buffer = %d, bits in Max bitrate buffer = %d",
       pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferFullnessMaxBRSkip);
     if(pWelsSvcRc->iBufferFullnessSkip < 0) {
@@ -783,7 +784,11 @@ void RcVBufferCalculationPadding (sWelsEncCtx* pEncCtx) {
 void RcTraceFrameBits (void* pCtx, long long uiTimeStamp) {
   sWelsEncCtx* pEncCtx = (sWelsEncCtx*)pCtx;
   SWelsSvcRc* pWelsSvcRc = &pEncCtx->pWelsSvcRc[pEncCtx->uiDependencyId];
-  pWelsSvcRc -> iPredFrameBit= LAST_FRAME_PREDICT_WEIGHT * pWelsSvcRc->iFrameDqBits + (1 - LAST_FRAME_PREDICT_WEIGHT) * pWelsSvcRc -> iPredFrameBit;
+
+  if (pWelsSvcRc->iPredFrameBit != 0)
+    pWelsSvcRc->iPredFrameBit = LAST_FRAME_PREDICT_WEIGHT * pWelsSvcRc->iFrameDqBits + (1 - LAST_FRAME_PREDICT_WEIGHT) * pWelsSvcRc->iPredFrameBit;
+  else 
+    pWelsSvcRc->iPredFrameBit = pWelsSvcRc->iFrameDqBits;
 
   WelsLog (& (pEncCtx->sLogCtx), WELS_LOG_DEBUG,
     "[Rc] Frame timestamp = %8d, Frame type =%d, encoding_qp%d, average qp = %3d, max qp = %3d, min qp = %3d, index = %8d,\
