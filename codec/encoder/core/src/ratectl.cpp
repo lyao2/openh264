@@ -787,7 +787,7 @@ void RcTraceFrameBits (void* pCtx, long long uiTimeStamp) {
 
   if (pWelsSvcRc->iPredFrameBit != 0)
     pWelsSvcRc->iPredFrameBit = LAST_FRAME_PREDICT_WEIGHT * pWelsSvcRc->iFrameDqBits + (1 - LAST_FRAME_PREDICT_WEIGHT) * pWelsSvcRc->iPredFrameBit;
-  else 
+  else
     pWelsSvcRc->iPredFrameBit = pWelsSvcRc->iFrameDqBits;
 
   WelsLog (& (pEncCtx->sLogCtx), WELS_LOG_DEBUG,
