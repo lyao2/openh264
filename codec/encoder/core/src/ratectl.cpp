@@ -750,7 +750,7 @@ void WelsRcFrameDelayJudge (void* pCtx, EVideoFrameType eFrameType, long long ui
 
   pWelsSvcRc->bSkipFlag = false;
 
-  const int32_t iSafetyBufferBits = (pWelsSvcRc->iSkipFrameNumInCheckWindow > pDLayerParamInternal->fInputFrameRate * 0.15) ? kiOutputMaxBits : 0;
+  const int32_t iSafetyBufferBits = (pWelsSvcRc->iSkipFrameNumInCheckWindow * INT_MULTIPLY > pDLayerParamInternal->fInputFrameRate * SKIP_FRAMENUM_RATIO) ? kiOutputMaxBits : 0;
   const int32_t iAvailableBitsInTimeWindow = WELS_DIV_ROUND ((TIME_CHECK_WINDOW - pEncCtx->iCheckWindowInterval)*
     pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate, 1000) - iSafetyBufferBits;
 
