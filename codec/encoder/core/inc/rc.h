@@ -215,6 +215,7 @@ int32_t   iBufferSizeSkip;
 int32_t   iBufferFullnessSkip;
 int32_t   iBufferFullnessMaxBRSkip;
 int32_t   iPredFrameBit;
+int32_t   iSkipFrameNumInCheckWindow;
 int32_t   iBufferSizePadding;
 int32_t   iBufferFullnessPadding;
 int32_t   iPaddingSize;

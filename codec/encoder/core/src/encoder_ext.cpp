@@ -3007,6 +3007,7 @@ bool CheckFrameSkipBasedMaxbr (sWelsEncCtx* pCtx, int32_t iSpatialNum, EVideoFra
           int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
           pCtx->pWelsSvcRc[iCurDid].iBufferFullnessMaxBRSkip = 0;
           pCtx->pWelsSvcRc[iCurDid].iPredFrameBit = 0;
+          pCtx->pWelsSvcRc[iCurDid].iSkipFrameNumInCheckWindow = 0;
         }
       }
 
