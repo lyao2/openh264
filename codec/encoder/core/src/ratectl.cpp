@@ -751,8 +751,6 @@ void WelsRcFrameDelayJudge (void* pCtx, EVideoFrameType eFrameType, long long ui
 
   pWelsSvcRc->bSkipFlag = false;
 
-//  const int32_t iSafetyBufferBits = (pWelsSvcRc->iSkipFrameNumInCheckWindow * INT_MULTIPLY * 1000 >
-//    pDLayerParamInternal->fInputFrameRate * SKIP_FRAMENUM_RATIO * TIME_CHECK_WINDOW) ? kiOutputMaxBits : 0;
   const int32_t iAvailableBitsInTimeWindow = WELS_DIV_ROUND ((TIME_CHECK_WINDOW - pEncCtx->iCheckWindowInterval)*
     pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate, 1000);
 
