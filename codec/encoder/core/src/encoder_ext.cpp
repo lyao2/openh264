@@ -2999,15 +2999,29 @@ bool CheckFrameSkipBasedMaxbr (sWelsEncCtx* pCtx, int32_t iSpatialNum, EVideoFra
         pCtx->bCheckWindowStatusRefreshFlag = true;
       }
       pCtx->iCheckWindowInterval = pCtx->iCheckWindowCurrentTs - pCtx->iCheckWindowStartTs;
+      if(pCtx->iCheckWindowInterval >= (TIME_CHECK_WINDOW >> 1) && !pCtx->bCheckWindowShiftResetFlag) {
+        pCtx->bCheckWindowShiftResetFlag = true;
+        for (int32_t i = 0; i < iSpatialNum; i++) {
+          int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
+          pCtx->pWelsSvcRc[iCurDid].iBufferMaxBRFullness[1] = 0;
+        }
+      }
+      pCtx->iCheckWindowIntervalShift = pCtx->iCheckWindowInterval >= (TIME_CHECK_WINDOW >> 1) ?
+        pCtx->iCheckWindowInterval - (TIME_CHECK_WINDOW >> 1) : pCtx->iCheckWindowInterval + (TIME_CHECK_WINDOW >> 1);
 
       if(pCtx->iCheckWindowInterval >= TIME_CHECK_WINDOW || pCtx->iCheckWindowInterval == 0) {
         pCtx->iCheckWindowStartTs = pCtx->iCheckWindowCurrentTs;
         pCtx->iCheckWindowInterval = 0;
+        pCtx->bCheckWindowShiftResetFlag = false;
         for (int32_t i = 0; i < iSpatialNum; i++) {
           int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
-          pCtx->pWelsSvcRc[iCurDid].iBufferFullnessMaxBRSkip = 0;
+          if (pCtx->pWelsSvcRc[iCurDid].iBufferMaxBRFullness[0] > 0) {
+            pCtx->pWelsSvcRc[iCurDid].bNeedShiftWindowCheck = true;
+          } else {
+            pCtx->pWelsSvcRc[iCurDid].bNeedShiftWindowCheck = false;
+          }
+          pCtx->pWelsSvcRc[iCurDid].iBufferMaxBRFullness[0] = 0;
           pCtx->pWelsSvcRc[iCurDid].iPredFrameBit = 0;
-          pCtx->pWelsSvcRc[iCurDid].iSkipFrameNumInCheckWindow = 0;
         }
       }
 

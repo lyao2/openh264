@@ -214,9 +214,9 @@ int32_t   iLastCalculatedQScale;
 //for skip frame and padding
 int32_t   iBufferSizeSkip;
 int32_t   iBufferFullnessSkip;
-int32_t   iBufferFullnessMaxBRSkip;
+int32_t   iBufferMaxBRFullness[2];
 int32_t   iPredFrameBit;
-int32_t   iSkipFrameNumInCheckWindow;
+bool      bNeedShiftWindowCheck;
 int32_t   iBufferSizePadding;
 int32_t   iBufferFullnessPadding;
 int32_t   iPaddingSize;
