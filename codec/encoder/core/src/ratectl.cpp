@@ -753,11 +753,13 @@ void WelsRcFrameDelayJudge (void* pCtx, EVideoFrameType eFrameType, long long ui
 
   const int32_t iAvailableBitsInTimeWindow = WELS_DIV_ROUND ((TIME_CHECK_WINDOW - pEncCtx->iCheckWindowInterval)*
     pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate, 1000);
+  const int32_t iAvailableBitsInShiftTimeWindow = WELS_DIV_ROUND ((TIME_CHECK_WINDOW - pEncCtx->iCheckWindowIntervalShift)*
+    pEncCtx->pSvcParam->sSpatialLayers[pEncCtx->uiDependencyId].iMaxSpatialBitrate, 1000);
 
   if (pWelsSvcRc->iBufferFullnessSkip > pWelsSvcRc->iBufferSizeSkip ||
     ((pEncCtx->iCheckWindowInterval > TIME_CHECK_WINDOW/2) && (pWelsSvcRc->iBufferMaxBRFullness[0] + pWelsSvcRc-> iPredFrameBit - iAvailableBitsInTimeWindow>0)) ||
     (pEncCtx->iCheckWindowIntervalShift > TIME_CHECK_WINDOW/2) && (pWelsSvcRc->bNeedShiftWindowCheck) &&
-    (pWelsSvcRc->iBufferMaxBRFullness[1] + pWelsSvcRc-> iPredFrameBit - iAvailableBitsInTimeWindow + kiOutputMaxBits > 0)) {
+    (pWelsSvcRc->iBufferMaxBRFullness[1] + pWelsSvcRc-> iPredFrameBit - iAvailableBitsInShiftTimeWindow + kiOutputMaxBits > 0)) {
     pWelsSvcRc->bSkipFlag = true;
     pWelsSvcRc->iSkipFrameNum++;
     pWelsSvcRc->iSkipFrameInVGop++;
