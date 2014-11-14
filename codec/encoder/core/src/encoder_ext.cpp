@@ -3093,7 +3093,7 @@ int32_t WelsEncoderEncodeExt (sWelsEncCtx* pCtx, SFrameBSInfo* pFbi, const SSour
   pFbi->uiTimeStamp = pSrcPic->uiTimeStamp;
   // perform csc/denoise/downsample/padding, generate spatial layers
   iSpatialNum = pCtx->pVpp->BuildSpatialPicList (pCtx, pSrcPic);
-  
+
   if (pCtx->pSvcParam->bEnableFrameSkip) {
     UpdateMaxBrCheckWindowStatus(pCtx, iSpatialNum, pSrcPic->uiTimeStamp);
   }
