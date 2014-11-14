@@ -2991,6 +2991,7 @@ bool CheckFrameSkipBasedMaxbr (sWelsEncCtx* pCtx, int32_t iSpatialNum, EVideoFra
   bool bSkipMustFlag = false;
   if (pCtx->pSvcParam->bEnableFrameSkip) {
     if ((RC_QUALITY_MODE == pCtx->pSvcParam->iRCMode) || (RC_BITRATE_MODE == pCtx->pSvcParam->iRCMode)) {
+
       for (int32_t i = 0; i < iSpatialNum; i++) {
         if (0 == pCtx->pSvcParam->sSpatialLayers[i].iMaxSpatialBitrate) {
           break;
@@ -3007,6 +3008,41 @@ bool CheckFrameSkipBasedMaxbr (sWelsEncCtx* pCtx, int32_t iSpatialNum, EVideoFra
   return bSkipMustFlag;
 }
 
+void UpdateMaxBrCheckWindowStatus(sWelsEncCtx* pCtx, int32_t iSpatialNum, const long long uiTimeStamp) {
+  SSpatialPicIndex* pSpatialIndexMap = &pCtx->sSpatialIndexMap[0];
+  if(pCtx->bCheckWindowStatusRefreshFlag) {
+    pCtx->iCheckWindowCurrentTs = uiTimeStamp;
+  } else {
+    pCtx->iCheckWindowCurrentTs = pCtx->iCheckWindowStartTs = uiTimeStamp;
+    pCtx->bCheckWindowStatusRefreshFlag = true;
+  }
+  pCtx->iCheckWindowInterval = pCtx->iCheckWindowCurrentTs - pCtx->iCheckWindowStartTs;
+  if(pCtx->iCheckWindowInterval >= (TIME_CHECK_WINDOW >> 1) && !pCtx->bCheckWindowShiftResetFlag) {
+    pCtx->bCheckWindowShiftResetFlag = true;
+    for (int32_t i = 0; i < iSpatialNum; i++) {
+      int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
+      pCtx->pWelsSvcRc[iCurDid].iBufferMaxBRFullness[1] = 0;
+    }
+  }
+  pCtx->iCheckWindowIntervalShift = pCtx->iCheckWindowInterval >= (TIME_CHECK_WINDOW >> 1) ?
+    pCtx->iCheckWindowInterval - (TIME_CHECK_WINDOW >> 1) : pCtx->iCheckWindowInterval + (TIME_CHECK_WINDOW >> 1);
+
+  if(pCtx->iCheckWindowInterval >= TIME_CHECK_WINDOW || pCtx->iCheckWindowInterval == 0) {
+    pCtx->iCheckWindowStartTs = pCtx->iCheckWindowCurrentTs;
+    pCtx->iCheckWindowInterval = 0;
+    pCtx->bCheckWindowShiftResetFlag = false;
+    for (int32_t i = 0; i < iSpatialNum; i++) {
+      int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
+      if (pCtx->pWelsSvcRc[iCurDid].iBufferMaxBRFullness[0] > 0) {
+        pCtx->pWelsSvcRc[iCurDid].bNeedShiftWindowCheck = true;
+      } else {
+        pCtx->pWelsSvcRc[iCurDid].bNeedShiftWindowCheck = false;
+      }
+      pCtx->pWelsSvcRc[iCurDid].iBufferMaxBRFullness[0] = 0;
+    }
+  }
+  return;
+}
 /*!
  * \brief	core svc encoding process
  *
@@ -3057,18 +3093,41 @@ int32_t WelsEncoderEncodeExt (sWelsEncCtx* pCtx, SFrameBSInfo* pFbi, const SSour
   pFbi->uiTimeStamp = pSrcPic->uiTimeStamp;
   // perform csc/denoise/downsample/padding, generate spatial layers
   iSpatialNum = pCtx->pVpp->BuildSpatialPicList (pCtx, pSrcPic);
+
+  if (pCtx->pSvcParam->bEnableFrameSkip) {
+    UpdateMaxBrCheckWindowStatus(pCtx, iSpatialNum, pSrcPic->uiTimeStamp);
+  }
+
   if (iSpatialNum < 1) {	// skip due to temporal layer settings (different frame rate)
     ++ pCtx->iCodingIndex;
     pFbi->eFrameType = videoFrameTypeSkip;
-    WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG, "[Rc] Frame timestamp = %lld",
+    WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG, "[Rc] Frame timestamp = %lld, skip one frame",
              pSrcPic->uiTimeStamp);
     return ENC_RETURN_SUCCESS;
   }
 
   eFrameType = DecideFrameType (pCtx, iSpatialNum);
   if (eFrameType == videoFrameTypeSkip) {
+    for (int32_t i = 0; i < iSpatialNum; i++) {
+      int32_t iCurDid	= (pSpatialIndexMap + i)->iDid;
+      SWelsSvcRc* pWelsSvcRc = &pCtx->pWelsSvcRc[iCurDid];
+      const int32_t kiOutputBits = WELS_DIV_ROUND (pWelsSvcRc->iBitsPerFrame, INT_MULTIPLY);
+      const int32_t kiOutputMaxBits = WELS_DIV_ROUND (pWelsSvcRc->iMaxBitsPerFrame, INT_MULTIPLY);
+      pWelsSvcRc->iBufferFullnessSkip = pWelsSvcRc->iBufferFullnessSkip - kiOutputBits;
+      pWelsSvcRc->iBufferMaxBRFullness[0] -= kiOutputMaxBits;
+      pWelsSvcRc->iBufferMaxBRFullness[1] -= kiOutputMaxBits;
+      WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG,"[Rc] bits in buffer = %d, bits in Max bitrate buffer = %d",
+        pWelsSvcRc->iBufferFullnessSkip,pWelsSvcRc->iBufferMaxBRFullness[0]);
+
+      pWelsSvcRc->iBufferFullnessSkip = WELS_MAX (pWelsSvcRc->iBufferFullnessSkip, 0);
+
+      pWelsSvcRc->iRemainingBits +=  kiOutputBits;
+      pWelsSvcRc->iSkipFrameNum++;
+      pWelsSvcRc->iSkipFrameInVGop++;
+
+    }
     pFbi->eFrameType = eFrameType;
-    WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG, "[Rc] Frame timestamp = %lld",
+    WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG, "[Rc] Frame timestamp = %lld, skip one frame",
              pSrcPic->uiTimeStamp);
     return ENC_RETURN_SUCCESS;
   }
@@ -3076,7 +3135,7 @@ int32_t WelsEncoderEncodeExt (sWelsEncCtx* pCtx, SFrameBSInfo* pFbi, const SSour
   //loop each layer to check if have skip frame when RC and frame skip enable
   if (CheckFrameSkipBasedMaxbr (pCtx, iSpatialNum, eFrameType, (uint32_t)pSrcPic->uiTimeStamp)) {
     pFbi->eFrameType = videoFrameTypeSkip;
-    WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG, "[Rc] Frame timestamp = %lld",
+    WelsLog (& (pCtx->sLogCtx), WELS_LOG_DEBUG, "[Rc] Frame timestamp = %lld, skip one frame",
              pSrcPic->uiTimeStamp);
     return ENC_RETURN_SUCCESS;
   }
@@ -3668,10 +3727,10 @@ int32_t WelsEncoderEncodeExt (sWelsEncCtx* pCtx, SFrameBSInfo* pFbi, const SSour
   pCtx->eLastNalPriority	= eNalRefIdc;
   pFbi->iLayerNum			= iLayerNum;
   pFbi->iSubSeqId = GetSubSequenceId (pCtx, eFrameType);
-  WelsLog (pLogCtx, WELS_LOG_DEBUG, "WelsEncoderEncodeExt() OutputInfo iLayerNum ＝ %d,iSubSeqId = %d", iLayerNum,
+  WelsLog (pLogCtx, WELS_LOG_DEBUG, "WelsEncoderEncodeExt() OutputInfo iLayerNum = %d,iSubSeqId = %d", iLayerNum,
            pFbi->iSubSeqId);
   for (int32_t i = 0; i < iLayerNum; i++)
-    WelsLog (pLogCtx, WELS_LOG_DEBUG, "WelsEncoderEncodeExt() OutputInfo iLayerId = %d,iNalType = %d,iNalCount ＝ %d", i,
+    WelsLog (pLogCtx, WELS_LOG_DEBUG, "WelsEncoderEncodeExt() OutputInfo iLayerId = %d,iNalType = %d,iNalCount = %d", i,
              pFbi->sLayerInfo[i].uiLayerType, pFbi->sLayerInfo[i].iNalCount);
 
 
