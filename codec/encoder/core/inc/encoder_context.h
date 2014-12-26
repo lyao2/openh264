@@ -173,11 +173,14 @@ typedef struct TagWelsEncCtx {
   int64_t           iCheckWindowStartTs;
   int64_t           iCheckWindowCurrentTs;
   int32_t           iCheckWindowInterval;
+  int32_t           iCheckWindowIntervalShift;
+  bool              bCheckWindowShiftResetFlag;
   int32_t						iSkipFrameFlag; //_GOM_RC_
+  int32_t           iContinualSkipFrames;
   int32_t						iGlobalQp;		// global qp
 
 // VAA
-  SVAAFrameInfo*          pVaa;		    // VAA information of reference
+  SVAAFrameInfo*		    	pVaa;		    // VAA information of reference
   CWelsPreProcess*				pVpp;
 
   SWelsSPS*							pSpsArray;		// MAX_SPS_COUNT by standard compatible
@@ -199,6 +202,7 @@ typedef struct TagWelsEncCtx {
   SSpatialPicIndex			sSpatialIndexMap[MAX_DEPENDENCY_LAYER];
 
   bool						bLongTermRefFlag[MAX_DEPENDENCY_LAYER][MAX_TEMPORAL_LEVEL + 1/*+LONG_TERM_REF_NUM*/];
+  uint16_t        uiIdrPicId;		// IDR picture id: [0, 65535], this one is used for LTR
 
   int16_t						iMaxSliceCount;// maximal count number of slices for all layers observation
   int16_t						iActiveThreadsNum;	// number of threads active so far
@@ -225,6 +229,9 @@ typedef struct TagWelsEncCtx {
   SEncoderStatistics sEncoderStatistics;
   int32_t            iStatisticsLogInterval;
   int64_t            iLastStatisticsLogTs;
+  int64_t            iTotalEncodedBits;
+  int64_t            iLastStatisticsBits;
+  int64_t            iLastStatisticsFrameCount;
 
   int32_t iEncoderError;
   WELS_MUTEX					mutexEncoderError;
