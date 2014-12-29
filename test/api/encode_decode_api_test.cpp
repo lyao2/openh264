@@ -5,6 +5,7 @@
 #include "BaseDecoderTest.h"
 #include "BaseEncoderTest.h"
 #include "wels_common_defs.h"
+#include "utils/HashFunctions.h"
 #include <string>
 #include <vector>
 using namespace WelsCommon;
@@ -69,6 +70,8 @@ static void TestOutPutTrace (void* ctx, int level, const char* string) {
 class EncodeDecodeTestBase : public ::testing::TestWithParam<EncodeDecodeFileParamBase>,
   public BaseEncoderTest, public BaseDecoderTest {
  public:
+  uint8_t iRandValue;
+ public:
   virtual void SetUp() {
     BaseEncoderTest::SetUp();
     BaseDecoderTest::SetUp();
@@ -93,6 +96,7 @@ class EncodeDecodeTestBase : public ::testing::TestWithParam<EncodeDecodeFilePar
     param_.fMaxFrameRate = framerate;
     param_.iRCMode = RC_OFF_MODE; //rc off
     param_.iMultipleThreadIdc = 1; //single thread
+    param_.iSpatialLayerNum = iLayers;
     for (int i = 0; i < iLayers; i++) {
       param_.sSpatialLayers[i].iVideoWidth = width >> (iLayers - i - 1);
       param_.sSpatialLayers[i].iVideoHeight = height >> (iLayers - i - 1);
@@ -102,6 +106,26 @@ class EncodeDecodeTestBase : public ::testing::TestWithParam<EncodeDecodeFilePar
     }
 
 
+  }
+  virtual void prepareEncDecParam (const EncodeDecodeFileParamBase EncDecFileParam) {
+    //for encoder
+    //I420: 1(Y) + 1/4(U) + 1/4(V)
+    int frameSize = EncDecFileParam.width * EncDecFileParam.height * 3 / 2;
+    buf_.SetLength (frameSize);
+    ASSERT_TRUE (buf_.Length() == (size_t)frameSize);
+    memset (&EncPic, 0, sizeof (SSourcePicture));
+    EncPic.iPicWidth = EncDecFileParam.width;
+    EncPic.iPicHeight = EncDecFileParam.height;
+    EncPic.iColorFormat = videoFormatI420;
+    EncPic.iStride[0] = EncPic.iPicWidth;
+    EncPic.iStride[1] = EncPic.iStride[2] = EncPic.iPicWidth >> 1;
+    EncPic.pData[0] = buf_.data();
+    EncPic.pData[1] = EncPic.pData[0] + EncDecFileParam.width * EncDecFileParam.height;
+    EncPic.pData[2] = EncPic.pData[1] + (EncDecFileParam.width * EncDecFileParam.height >> 2);
+    //for decoder
+    memset (&info, 0, sizeof (SFrameBSInfo));
+    //set a fixed random value
+    iRandValue = rand() % 256;
   }
 
   virtual void encToDecData (const SFrameBSInfo& info, int& len) {
@@ -197,8 +221,8 @@ void EncodeDecodeTestAPI::InitialEncDec (int iWidth, int iHeight) {
 
 void EncodeDecodeTestAPI::RandomParamExtCombination() {
 
-  param_.iPicWidth  = WELS_CLIP3 ((((rand() % MAX_WIDTH) >> 1)  + 1) << 1, 2, MAX_WIDTH);
-  param_.iPicHeight = WELS_CLIP3 ((((rand() % MAX_HEIGHT) >> 1) + 1) << 1, 2, MAX_HEIGHT);
+  param_.iPicWidth  = WelsClip3 ((((rand() % MAX_WIDTH) >> 1)  + 1) << 1, 2, MAX_WIDTH);
+  param_.iPicHeight = WelsClip3 ((((rand() % MAX_HEIGHT) >> 1) + 1) << 1, 2, MAX_HEIGHT);
 
   param_.fMaxFrameRate      = rand() % FRAME_RATE_RANGE + 0.5f;
   param_.iUsageType         = static_cast<EUsageType> (rand() % 2);
@@ -221,7 +245,7 @@ void EncodeDecodeTestAPI::RandomParamExtCombination() {
   param_.iLtrMarkPeriod            = rand();
 
   //loop filter
-  param_.iLoopFilterDisableIdc     = rand();
+  param_.iLoopFilterDisableIdc     = rand() % 7;
   param_.iLoopFilterAlphaC0Offset  = rand();
   param_.iLoopFilterBetaOffset     = rand();
 
@@ -231,7 +255,7 @@ void EncodeDecodeTestAPI::RandomParamExtCombination() {
   param_.bEnableFrameCroppingFlag   = (rand() % 2 == 0) ? false : true;
   param_.bEnableSceneChangeDetect   = (rand() % 2 == 0) ? false : true;
 
-//for rc
+  //for rc
   param_.iRCMode            = static_cast<RC_MODES> (rand() % RC_MODE_RANGE - 1);
   param_.iMaxBitrate        = rand() % BIT_RATE_RANGE;
   param_.iTargetBitrate     = rand() % BIT_RATE_RANGE;
@@ -247,8 +271,8 @@ void EncodeDecodeTestAPI::RandomParamExtCombination() {
       //to do: profile and level id
       //pSpatialLayer->uiProfileIdc        = 0;
       //pSpatialLayer->uiLevelIdc          = 0;
-      pSpatialLayer->iVideoWidth         = WELS_CLIP3 ((((rand() % MAX_WIDTH) >> 1)  + 1) << 1, 2, MAX_WIDTH);
-      pSpatialLayer->iVideoHeight        = WELS_CLIP3 ((((rand() % MAX_HEIGHT) >> 1) + 1) << 1, 2, MAX_HEIGHT);
+      pSpatialLayer->iVideoWidth         = WelsClip3 ((((rand() % MAX_WIDTH) >> 1)  + 1) << 1, 2, MAX_WIDTH);
+      pSpatialLayer->iVideoHeight        = WelsClip3 ((((rand() % MAX_HEIGHT) >> 1) + 1) << 1, 2, MAX_HEIGHT);
       pSpatialLayer->fFrameRate          = rand() % FRAME_RATE_RANGE + 0.5f;
       pSpatialLayer->iMaxSpatialBitrate  = rand() % BIT_RATE_RANGE;
       pSpatialLayer->iSpatialBitrate     = rand() % BIT_RATE_RANGE;
@@ -283,7 +307,7 @@ void EncodeDecodeTestAPI::ValidateParamExtCombination() {
   uiGOPSize = 1 << (param_.iTemporalLayerNum - 1);
   param_.uiIntraPeriod -= param_.uiIntraPeriod % uiGOPSize;
 
-//RefNum
+  //RefNum
   int32_t iRefUpperBound    = (param_.iUsageType == CAMERA_VIDEO_REAL_TIME) ?
                               MAX_REFERENCE_PICTURE_COUNT_NUM_CAMERA : MAX_REFERENCE_PICTURE_COUNT_NUM_SCREEN;
   param_.iNumRefFrame       = WELS_CLIP3 (param_.iNumRefFrame, MIN_REF_PIC_COUNT, iRefUpperBound);
@@ -537,7 +561,7 @@ TEST_P (EncodeDecodeTestAPI, GetOptionIDR) {
     EncodeOneFrame (0);
 
     if (info.eFrameType == videoFrameTypeIDR) {
-      iEncCurIdrPicId = (iSpsPpsIdAddition == 0) ? 0 : (iEncCurIdrPicId + 1);
+      iEncCurIdrPicId = iEncCurIdrPicId + 1;
     }
     //decoding after each encoding frame
     int len = 0;
@@ -763,7 +787,7 @@ TEST_P (EncodeDecodeTestAPI, GetOptionLTR_ALLIDR) {
   decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
   int32_t iSpsPpsIdAddition = 1;
   encoder_->SetOption (ENCODER_OPTION_ENABLE_SPS_PPS_ID_ADDITION, &iSpsPpsIdAddition);
-  int32_t iIDRPeriod = 60;
+  int32_t iIDRPeriod = pow (2.0f, (param_.iTemporalLayerNum - 1)) * ((rand() % 5) + 1);
   encoder_->SetOption (ENCODER_OPTION_IDR_INTERVAL, &iIDRPeriod);
   SLTRConfig sLtrConfigVal;
   sLtrConfigVal.bEnableLongTermReference = 1;
@@ -1009,6 +1033,53 @@ TEST_P (EncodeDecodeTestAPI, SetOptionECFlag_ERROR_CON_SLICE_COPY) {
   (void) iSkipedBytes;
 }
 
+TEST_P (EncodeDecodeTestAPI, InOutTimeStamp) {
+  EncodeDecodeFileParamBase p = GetParam();
+  prepareParam (1, p.slicenum,  p.width, p.height, p.frameRate);
+  encoder_->Uninitialize();
+  int rv = encoder_->InitializeExt (&param_);
+  ASSERT_TRUE (rv == cmResultSuccess);
+
+  InitialEncDec (p.width, p.height);
+  int32_t iTraceLevel = WELS_LOG_QUIET;
+  encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  int32_t iSpsPpsIdAddition = 1;
+  encoder_->SetOption (ENCODER_OPTION_ENABLE_SPS_PPS_ID_ADDITION, &iSpsPpsIdAddition);
+  int32_t iIDRPeriod = 60;
+  encoder_->SetOption (ENCODER_OPTION_IDR_INTERVAL, &iIDRPeriod);
+  SLTRConfig sLtrConfigVal;
+  sLtrConfigVal.bEnableLongTermReference = 1;
+  sLtrConfigVal.iLTRRefNum = 1;
+  encoder_->SetOption (ENCODER_OPTION_LTR, &sLtrConfigVal);
+  int32_t iLtrPeriod = 2;
+  encoder_->SetOption (ENCODER_LTR_MARKING_PERIOD, &iLtrPeriod);
+  int iIdx = 0;
+  int iSkipedBytes;
+  unsigned long long uiEncTimeStamp = 100;
+  while (iIdx <= p.numframes) {
+    EncodeOneFrame (1);
+    //decoding after each encoding frame
+    int len = 0;
+    encToDecData (info, len);
+    unsigned char* pData[3] = { NULL };
+    memset (&dstBufInfo_, 0, sizeof (SBufferInfo));
+    uint32_t uiEcIdc = ERROR_CON_SLICE_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
+    decoder_->SetOption (DECODER_OPTION_ERROR_CON_IDC, &uiEcIdc);
+    dstBufInfo_.uiInBsTimeStamp = uiEncTimeStamp;
+    rv = decoder_->DecodeFrame2 (info.sLayerInfo[0].pBsBuf, len, pData, &dstBufInfo_);
+    memset (&dstBufInfo_, 0, sizeof (SBufferInfo));
+    dstBufInfo_.uiInBsTimeStamp = uiEncTimeStamp;
+    rv = decoder_->DecodeFrame2 (NULL, 0, pData, &dstBufInfo_); //reconstruction
+    if (dstBufInfo_.iBufferStatus == 1) {
+      EXPECT_EQ (uiEncTimeStamp, dstBufInfo_.uiOutYuvTimeStamp);
+    }
+    iIdx++;
+    uiEncTimeStamp++;
+  }
+  (void) iSkipedBytes;
+}
+
 TEST_P (EncodeDecodeTestAPI, GetOptionTid_AVC_NOPREFIX) {
   SLTRMarkingFeedback m_LTR_Marking_Feedback;
   SLTRRecoverRequest m_LTR_Recover_Request;
@@ -1206,12 +1277,13 @@ TEST_P (EncodeDecodeTestAPI, SetOption_Trace) {
   pFunc = TestOutPutTrace;
   pTraceInfo = &sTrace;
   sTrace.iTarLevel = iTraceLevel;
+  encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
   encoder_->SetOption (ENCODER_OPTION_TRACE_CALLBACK, &pFunc);
   encoder_->SetOption (ENCODER_OPTION_TRACE_CALLBACK_CONTEXT, &pTraceInfo);
   decoder_->SetOption (DECODER_OPTION_TRACE_CALLBACK, &pFunc);
   decoder_->SetOption (DECODER_OPTION_TRACE_CALLBACK_CONTEXT, &pTraceInfo);
-  encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
-  decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+
 
   int32_t iSpsPpsIdAddition = 1;
   encoder_->SetOption (ENCODER_OPTION_ENABLE_SPS_PPS_ID_ADDITION, &iSpsPpsIdAddition);
@@ -1536,7 +1608,7 @@ TEST_F (EncodeDecodeTestAPI, SetOptionECIDC_SpecificFrameChange) {
 //loss (2 slice: 1,2):          2   0   0   1   0
 
 TEST_F (EncodeDecodeTestAPI, SetOptionECIDC_SpecificSliceChange_IDRLoss) {
-  uint32_t uiEcIdc;
+  uint32_t uiEcIdc = 2; //default set as SLICE_COPY
   uint32_t uiGet;
   EncodeDecodeFileParamBase p = kFileParamArray[0];
   prepareParam (1, 2,  p.width, p.height, p.frameRate);
@@ -1544,6 +1616,7 @@ TEST_F (EncodeDecodeTestAPI, SetOptionECIDC_SpecificSliceChange_IDRLoss) {
   encoder_->Uninitialize();
   int rv = encoder_->InitializeExt (&param_);
   ASSERT_TRUE (rv == cmResultSuccess);
+  decoder_->SetOption (DECODER_OPTION_ERROR_CON_IDC, &uiEcIdc);
   decoder_->GetOption (DECODER_OPTION_ERROR_CON_IDC, &uiGet);
   EXPECT_EQ (uiGet, (uint32_t) ERROR_CON_SLICE_COPY); //default value should be ERROR_CON_SLICE_COPY
   int32_t iTraceLevel = WELS_LOG_QUIET;
@@ -1854,7 +1927,7 @@ TEST_F (EncodeDecodeTestAPI, Engine_SVC_Switch_I) {
   decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
   int32_t iSpsPpsIdAddition = 1;
   encoder_->SetOption (ENCODER_OPTION_ENABLE_SPS_PPS_ID_ADDITION, &iSpsPpsIdAddition);
-  int32_t iIDRPeriod = 15;
+  int32_t iIDRPeriod = pow (2.0f, (param_.iTemporalLayerNum - 1)) * ((rand() % 5) + 1);
   encoder_->SetOption (ENCODER_OPTION_IDR_INTERVAL, &iIDRPeriod);
   SLTRConfig sLtrConfigVal;
   sLtrConfigVal.bEnableLongTermReference = 1;
@@ -1983,23 +2056,24 @@ TEST_F (EncodeDecodeTestAPI, Engine_SVC_Switch_P) {
   }
 }
 
-
 TEST_F (EncodeDecodeTestAPI, SetOptionEncParamExt) {
-  int iWidth       = WELS_CLIP3 ((((rand() % MAX_WIDTH) >> 1) + 1) << 1,  2, MAX_WIDTH);
-  int iHeight      = WELS_CLIP3 ((((rand() % MAX_HEIGHT) >> 1) + 1) << 1, 2, MAX_HEIGHT);
-  float fFrameRate = rand() + 0.5f;
-  int iEncFrameNum = WELS_CLIP3 ((rand() % ENCODE_FRAME_NUM) + 1, 1, ENCODE_FRAME_NUM);
   int iSpatialLayerNum = 4;
+  int iWidth       = WelsClip3 ((((rand() % MAX_WIDTH) >> 1)  + 1) << 1, 1 << iSpatialLayerNum, MAX_WIDTH);
+  int iHeight      = WelsClip3 ((((rand() % MAX_HEIGHT) >> 1)  + 1) << 1, 1 << iSpatialLayerNum, MAX_HEIGHT);
+  float fFrameRate = rand() + 0.5f;
+  int iEncFrameNum = WelsClip3 ((rand() % ENCODE_FRAME_NUM) + 1, 1, ENCODE_FRAME_NUM);
   int iSliceNum        = 1;
   encoder_->GetDefaultParams (&param_);
   prepareParam (iSpatialLayerNum, iSliceNum, iWidth, iHeight, fFrameRate);
+
   int rv = encoder_->InitializeExt (&param_);
   ASSERT_TRUE (rv == cmResultSuccess);
 
-  int32_t iTraceLevel = WELS_LOG_QUIET;
-  encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  int iTraceLevel = WELS_LOG_QUIET;
+  rv = encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  ASSERT_TRUE (rv == cmResultSuccess);
+
   for (int i = 0; i < iEncFrameNum; i++) {
-    //for (int i = 0; i < 9; i++) {
     int iResult;
     int len = 0;
     unsigned char* pData[3] = { NULL };
@@ -2032,3 +2106,361 @@ TEST_F (EncodeDecodeTestAPI, SetOptionEncParamExt) {
   iTraceLevel = WELS_LOG_ERROR;
   encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
 }
+
+class DecodeCrashTestAPI : public EncodeDecodeTestBase {
+ public:
+  uint8_t iRandValue;
+ public:
+  void SetUp() {
+    EncodeDecodeTestBase::SetUp();
+    ucBuf_ = NULL;
+    ucBuf_ = new unsigned char [1000000];
+    ASSERT_TRUE (ucBuf_ != NULL);
+  }
+
+  void TearDown() {
+    EncodeDecodeTestBase::TearDown();
+    if (NULL != ucBuf_) {
+      delete[] ucBuf_;
+      ucBuf_ = NULL;
+    }
+    ASSERT_TRUE (ucBuf_ == NULL);
+  }
+
+  void prepareParam (int iLayerNum, int iSliceNum, int width, int height, float framerate) {
+    EncodeDecodeTestBase::prepareParam (iLayerNum, iSliceNum,  width, height, framerate);
+  }
+
+  void prepareEncDecParam (const EncodeDecodeFileParamBase EncDecFileParam);
+  void EncodeOneFrame() {
+    int frameSize = EncPic.iPicWidth * EncPic.iPicHeight * 3 / 2;
+    memset (buf_.data(), iRandValue, (frameSize >> 2));
+    memset (buf_.data() + (frameSize >> 2), rand() % 256, (frameSize - (frameSize >> 2)));
+    int rv = encoder_->EncodeFrame (&EncPic, &info);
+    ASSERT_TRUE (rv == cmResultSuccess || rv == cmUnkonwReason);
+  }
+ protected:
+  unsigned char* ucBuf_;
+};
+
+void DecodeCrashTestAPI::prepareEncDecParam (const EncodeDecodeFileParamBase EncDecFileParam) {
+  // for encoder
+  // I420: 1(Y) + 1/4(U) + 1/4(V)
+  int frameSize = EncDecFileParam.width * EncDecFileParam.height * 3 / 2;
+
+  buf_.SetLength (frameSize);
+  ASSERT_TRUE (buf_.Length() == (size_t)frameSize);
+
+  memset (&EncPic, 0, sizeof (SSourcePicture));
+  EncPic.iPicWidth = EncDecFileParam.width;
+  EncPic.iPicHeight = EncDecFileParam.height;
+  EncPic.iColorFormat = videoFormatI420;
+  EncPic.iStride[0] = EncPic.iPicWidth;
+  EncPic.iStride[1] = EncPic.iStride[2] = EncPic.iPicWidth >> 1;
+  EncPic.pData[0] = buf_.data();
+  EncPic.pData[1] = EncPic.pData[0] + EncDecFileParam.width * EncDecFileParam.height;
+  EncPic.pData[2] = EncPic.pData[1] + (EncDecFileParam.width * EncDecFileParam.height >> 2);
+
+  //for decoder
+  memset (&info, 0, sizeof (SFrameBSInfo));
+
+  //set a fixed random value
+  iRandValue = rand() % 256;
+}
+
+struct EncodeDecodeParamBase {
+  int width;
+  int height;
+  float frameRate;
+  int iTarBitrate;
+};
+
+
+static const EncodeDecodeParamBase kParamArray[] = {
+  {160, 90, 6.0f, 250000},
+  {320, 180, 12.0f, 500000},
+  {640, 360, 24.0f, 800000},
+};
+
+//#define DEBUG_FILE_SAVE
+TEST_F (DecodeCrashTestAPI, DecoderCrashTest) {
+  uint32_t uiGet;
+  encoder_->Uninitialize();
+
+  //do tests until crash
+  unsigned int uiLoopRound = 0;
+  unsigned char* pucBuf = ucBuf_;
+  int iDecAuSize;
+#ifdef DEBUG_FILE_SAVE
+  //open file to save tested BS
+  FILE* f = fopen ("test_crash.264", "wb");
+  int iFileSize = 0;
+#endif
+
+  do {
+    int iTotalFrameNum = (rand() % 100) + 1;
+    int iSeed = rand() % 3; //3 indicates the length of kParamArray[] used in the following
+    EncodeDecodeParamBase p = kParamArray[iSeed];
+    //Initialize Encoder
+    prepareParam (1, 1, p.width, p.height, p.frameRate);
+    param_.iRCMode = RC_BITRATE_MODE;
+    param_.iTargetBitrate = p.iTarBitrate;
+    param_.uiIntraPeriod = 0;
+    param_.bEnableSpsPpsIdAddition = true;
+    param_.bEnableBackgroundDetection = true;
+    param_.bEnableSceneChangeDetect = true;
+    param_.bPrefixNalAddingCtrl = true;
+    param_.iEntropyCodingModeFlag = 0;
+    param_.bEnableFrameSkip = true;
+    param_.uiMaxNalSize = 1400;
+    param_.iMultipleThreadIdc = 0;
+    param_.sSpatialLayers[0].iSpatialBitrate = p.iTarBitrate;
+    param_.sSpatialLayers[0].iMaxSpatialBitrate = p.iTarBitrate << 1;
+    param_.sSpatialLayers[0].sSliceCfg.uiSliceMode = SM_DYN_SLICE;
+    param_.sSpatialLayers[0].sSliceCfg.sSliceArgument.uiSliceSizeConstraint = 1000;
+
+    int rv = encoder_->InitializeExt (&param_);
+    ASSERT_TRUE (rv == cmResultSuccess);
+    decoder_->GetOption (DECODER_OPTION_ERROR_CON_IDC, &uiGet);
+    EXPECT_EQ (uiGet, (uint32_t) ERROR_CON_SLICE_COPY); //default value should be ERROR_CON_SLICE_COPY
+    int32_t iTraceLevel = WELS_LOG_QUIET;
+    encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+    decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+
+    //Start for enc/dec
+    int iIdx = 0;
+    unsigned char* pData[3] = { NULL };
+
+    EncodeDecodeFileParamBase pInput; //to conform with old functions
+    pInput.width =  p.width;
+    pInput.height = p.height;
+    pInput.frameRate = p.frameRate;
+    prepareEncDecParam (pInput);
+    while (iIdx++ < iTotalFrameNum) { // loop in frame
+      EncodeOneFrame();
+#ifdef DEBUG_FILE_SAVE
+      //reset file if file size large
+      if ((info.eFrameType == videoFrameTypeIDR) && (iFileSize >= (1 << 25))) {
+        fclose (f);
+        f = fopen ("test_crash.264", "wb");
+        iFileSize = 0;
+        decoder_->Uninitialize();
+
+        SDecodingParam decParam;
+        memset (&decParam, 0, sizeof (SDecodingParam));
+        decParam.eOutputColorFormat = videoFormatI420;
+        decParam.uiTargetDqLayer = UCHAR_MAX;
+        decParam.eEcActiveIdc = ERROR_CON_SLICE_COPY;
+        decParam.sVideoProperty.eVideoBsType = VIDEO_BITSTREAM_DEFAULT;
+
+        rv = decoder_->Initialize (&decParam);
+        ASSERT_EQ (0, rv);
+      }
+#endif
+      if (info.eFrameType == videoFrameTypeSkip)
+        continue;
+      //deal with packets
+      unsigned char* pBsBuf;
+      iDecAuSize = 0;
+      pucBuf = ucBuf_; //init buf start pos for decoder usage
+      for (int iLayerNum = 0; iLayerNum < info.iLayerNum; iLayerNum++) {
+        SLayerBSInfo* pLayerBsInfo = &info.sLayerInfo[iLayerNum];
+        pBsBuf = info.sLayerInfo[iLayerNum].pBsBuf;
+        int iTotalNalCnt = pLayerBsInfo->iNalCount;
+        for (int iNalCnt = 0; iNalCnt < iTotalNalCnt; iNalCnt++) {  //loop in NAL
+          int iPacketSize = pLayerBsInfo->pNalLengthInByte[iNalCnt];
+          //packet loss
+          int iLossRate = (rand() % 11); //loss rate among 0 ~ 10%
+          bool bPacketLost = (rand() % 101) > (100 -
+                                               iLossRate);   // [0, (100-iLossRate)] indicates NO LOSS, (100-iLossRate, 100] indicates LOSS
+          if (!bPacketLost) { //no loss
+            memcpy (pucBuf, pBsBuf, iPacketSize);
+            pucBuf += iPacketSize;
+            iDecAuSize += iPacketSize;
+          }
+          //update bs info
+          pBsBuf += iPacketSize;
+        } //nal
+      } //layer
+
+#ifdef DEBUG_FILE_SAVE
+      //save to file
+      fwrite (ucBuf_, 1, iDecAuSize, f);
+      iFileSize += iDecAuSize;
+#endif
+
+      //decode
+      pData[0] = pData[1] = pData[2] = 0;
+      memset (&dstBufInfo_, 0, sizeof (SBufferInfo));
+
+      rv = decoder_->DecodeFrame2 (ucBuf_, iDecAuSize, pData, &dstBufInfo_);
+      rv = decoder_->DecodeFrame2 (NULL, 0, pData, &dstBufInfo_); //reconstruction
+      //guarantee decoder EC status
+      decoder_->GetOption (DECODER_OPTION_ERROR_CON_IDC, &uiGet);
+      EXPECT_EQ (uiGet, (uint32_t) ERROR_CON_SLICE_COPY);
+    } //frame
+    uiLoopRound ++;
+    if (uiLoopRound >= (1 << 30))
+      uiLoopRound = 0;
+#ifdef DEBUG_FILE_SAVE
+    if (uiLoopRound % 100 == 0)
+      printf ("run %d times.\n", uiLoopRound);
+  } while (1); //while (iLoopRound<100);
+  fclose (f);
+#else
+  }
+  while (uiLoopRound < 10);
+#endif
+
+}
+
+const uint32_t kiTotalLayer = 3; //DO NOT CHANGE!
+const uint32_t kiSliceNum = 2; //DO NOT CHANGE!
+const uint32_t kiWidth = 160; //DO NOT CHANGE!
+const uint32_t kiHeight = 96; //DO NOT CHANGE!
+const uint32_t kiFrameRate = 12; //DO NOT CHANGE!
+const uint32_t kiFrameNum = 100; //DO NOT CHANGE!
+const uint32_t kiMaxBsSize = 10000000; //DO NOT CHANGE!
+const char* pHashStr[] = { //DO NOT CHANGE!
+  "adb1513673053e9d228a4ab5429c8cfdadca3eb0",
+  "e5d2db6f404acd13c420279927c1453b3a559a6e",
+  "24ac736048cc85c672b4b8516eb26215ca80f2c4"
+};
+
+class DecodeParseAPI : public EncodeDecodeTestBase {
+ public:
+  void SetUp() {
+    SHA1Reset (&ctx_);
+    EncodeDecodeTestBase::SetUp();
+
+    if (decoder_)
+      decoder_->Uninitialize();
+    SDecodingParam decParam;
+    memset (&decParam, 0, sizeof (SDecodingParam));
+    decParam.eOutputColorFormat = videoFormatI420;
+    decParam.uiTargetDqLayer = UCHAR_MAX;
+    decParam.eEcActiveIdc = ERROR_CON_SLICE_COPY;
+    decParam.bParseOnly = true;
+    decParam.sVideoProperty.eVideoBsType = VIDEO_BITSTREAM_DEFAULT;
+
+    int rv = decoder_->Initialize (&decParam);
+    ASSERT_EQ (0, rv);
+    memset (&BsInfo_, 0, sizeof (SParserBsInfo));
+    BsInfo_.pDstBuff = NULL;
+    BsInfo_.pDstBuff = new unsigned char [kiMaxBsSize];
+    ASSERT_TRUE (BsInfo_.pDstBuff != NULL);
+    fYuv_ = fopen ("./res/CiscoVT2people_160x96_6fps.yuv", "rb");
+    ASSERT_TRUE (fYuv_ != NULL);
+    iWidth_ = kiWidth;
+    iHeight_ = kiHeight;
+  }
+  void TearDown() {
+    EncodeDecodeTestBase::TearDown();
+    if (BsInfo_.pDstBuff) {
+      delete[] BsInfo_.pDstBuff;
+      BsInfo_.pDstBuff = NULL;
+    }
+    fclose (fYuv_);
+  }
+
+  void prepareEncDecParam (const EncodeDecodeFileParamBase p) {
+    EncodeDecodeTestBase::prepareEncDecParam (p);
+    unsigned char* pTmpPtr = BsInfo_.pDstBuff; //store for restore
+    memset (&BsInfo_, 0, sizeof (SParserBsInfo));
+    BsInfo_.pDstBuff = pTmpPtr;
+  }
+
+  void EncodeOneFrame (int iIdx) {
+    int iFrameSize = iWidth_ * iHeight_ * 3 / 2;
+    int iSize = fread (buf_.data(), sizeof (char), iFrameSize, fYuv_);
+    if (feof (fYuv_) || iSize != iFrameSize) {
+      rewind (fYuv_);
+      iSize = fread (buf_.data(), sizeof (char), iFrameSize, fYuv_);
+      ASSERT_TRUE (iSize == iFrameSize);
+    }
+    int rv = encoder_->EncodeFrame (&EncPic, &info);
+    ASSERT_TRUE (rv == cmResultSuccess || rv == cmUnkonwReason);
+  }
+
+ protected:
+  SParserBsInfo BsInfo_;
+  FILE* fYuv_;
+  int iWidth_;
+  int iHeight_;
+  SHA1Context ctx_;
+};
+
+//#define DEBUG_FILE_SAVE
+TEST_F (DecodeParseAPI, ParseOnly_General) {
+  EncodeDecodeFileParamBase p;
+  p.width = iWidth_;
+  p.height = iHeight_;
+  p.frameRate = kiFrameRate;
+  p.numframes = kiFrameNum;
+  prepareParam (kiTotalLayer, kiSliceNum, p.width, p.height, p.frameRate);
+  param_.iSpatialLayerNum = kiTotalLayer;
+  encoder_->Uninitialize();
+  int rv = encoder_->InitializeExt (&param_);
+  ASSERT_TRUE (rv == 0);
+  int32_t iTraceLevel = WELS_LOG_QUIET;
+  encoder_->SetOption (ENCODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  decoder_->SetOption (DECODER_OPTION_TRACE_LEVEL, &iTraceLevel);
+  uint32_t uiTargetLayerId = rand() % kiTotalLayer; //run only once
+#ifdef DEBUG_FILE_SAVE
+  FILE* fDec = fopen ("output.264", "wb");
+  FILE* fEnc = fopen ("enc.264", "wb");
+  FILE* fExtract = fopen ("extract.264", "wb");
+#endif
+  if (uiTargetLayerId < kiTotalLayer) { //should always be true
+    //Start for enc
+    int iLen = 0;
+    prepareEncDecParam (p);
+    int iFrame = 0;
+
+    while (iFrame < p.numframes) {
+      //encode
+      EncodeOneFrame (iFrame);
+      //extract target layer data
+      encToDecData (info, iLen);
+#ifdef DEBUG_FILE_SAVE
+      fwrite (info.sLayerInfo[0].pBsBuf, iLen, 1, fEnc);
+#endif
+      ExtractDidNal (&info, iLen, &m_SLostSim, uiTargetLayerId);
+#ifdef DEBUG_FILE_SAVE
+      fwrite (info.sLayerInfo[0].pBsBuf, iLen, 1, fExtract);
+#endif
+      //parseonly
+      //BsInfo_.pDstBuff = new unsigned char [1000000];
+      rv = decoder_->DecodeParser (info.sLayerInfo[0].pBsBuf, iLen, &BsInfo_);
+      EXPECT_TRUE (rv == 0);
+      EXPECT_TRUE (BsInfo_.iNalNum == 0);
+      rv = decoder_->DecodeParser (NULL, 0, &BsInfo_);
+      EXPECT_TRUE (rv == 0);
+      EXPECT_TRUE (BsInfo_.iNalNum != 0);
+      //get final output bs
+      iLen = 0;
+      int i = 0;
+      while (i < BsInfo_.iNalNum) {
+        iLen += BsInfo_.iNalLenInByte[i];
+        i++;
+      }
+#ifdef DEBUG_FILE_SAVE
+      fwrite (BsInfo_.pDstBuff, iLen, 1, fDec);
+#endif
+      SHA1Input (&ctx_, BsInfo_.pDstBuff, iLen);
+      iFrame++;
+    }
+    //calculate final SHA1 value
+    unsigned char digest[SHA_DIGEST_LENGTH];
+    SHA1Result (&ctx_, digest);
+    if (!HasFatalFailure()) {
+      CompareHash (digest, pHashStr[uiTargetLayerId]);
+    }
+  } //while
+#ifdef DEBUG_FILE_SAVE
+  fclose (fEnc);
+  fclose (fExtract);
+  fclose (fDec);
+#endif
+}
+
