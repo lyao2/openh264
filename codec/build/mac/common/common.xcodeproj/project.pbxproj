@@ -36,7 +36,29 @@
 		CEC28FF91A4AB36700777576 /* wels_common_defs.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC28FE71A4AB36700777576 /* wels_common_defs.h */; };
 		CEC28FFA1A4AB36700777576 /* welsCodecTrace.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC28FE81A4AB36700777576 /* welsCodecTrace.h */; };
 		CEC28FFB1A4AB36700777576 /* WelsThreadLib.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC28FE91A4AB36700777576 /* WelsThreadLib.h */; };
+		CEF1D5741A52A0F800AAAA15 /* asm_inc.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D56A1A52A0F800AAAA15 /* asm_inc.asm */; };
+		CEF1D5751A52A0F800AAAA15 /* cpuid.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D56B1A52A0F800AAAA15 /* cpuid.asm */; };
+		CEF1D5761A52A0F800AAAA15 /* deblock.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D56C1A52A0F800AAAA15 /* deblock.asm */; };
+		CEF1D5771A52A0F800AAAA15 /* expand_picture.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D56D1A52A0F800AAAA15 /* expand_picture.asm */; };
+		CEF1D5781A52A0F800AAAA15 /* intra_pred_com.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D56E1A52A0F800AAAA15 /* intra_pred_com.asm */; };
+		CEF1D5791A52A0F800AAAA15 /* mb_copy.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D56F1A52A0F800AAAA15 /* mb_copy.asm */; };
+		CEF1D57A1A52A0F800AAAA15 /* mc_chroma.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5701A52A0F800AAAA15 /* mc_chroma.asm */; };
+		CEF1D57B1A52A0F800AAAA15 /* mc_luma.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5711A52A0F800AAAA15 /* mc_luma.asm */; };
+		CEF1D57C1A52A0F800AAAA15 /* satd_sad.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5721A52A0F800AAAA15 /* satd_sad.asm */; };
+		CEF1D57D1A52A0F800AAAA15 /* vaa.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5731A52A0F800AAAA15 /* vaa.asm */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		CEF1D5511A5287C500AAAA15 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc;
+			fileType = sourcecode.nasm;
+			isEditable = 1;
+			outputFiles = (
+			);
+			script = "nasm=\"\"\nnasm_list=(nasm /usr/bin/nasm /opt/local/bin/nasm)\n";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		CEC28FB71A4AB2B100777576 /* libcommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +92,16 @@
 		CEC28FE71A4AB36700777576 /* wels_common_defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wels_common_defs.h; path = ../../../common/inc/wels_common_defs.h; sourceTree = "<group>"; };
 		CEC28FE81A4AB36700777576 /* welsCodecTrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = welsCodecTrace.h; path = ../../../common/inc/welsCodecTrace.h; sourceTree = "<group>"; };
 		CEC28FE91A4AB36700777576 /* WelsThreadLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WelsThreadLib.h; path = ../../../common/inc/WelsThreadLib.h; sourceTree = "<group>"; };
+		CEF1D56A1A52A0F800AAAA15 /* asm_inc.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = asm_inc.asm; path = ../../../common/x86/asm_inc.asm; sourceTree = "<group>"; };
+		CEF1D56B1A52A0F800AAAA15 /* cpuid.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = cpuid.asm; path = ../../../common/x86/cpuid.asm; sourceTree = "<group>"; };
+		CEF1D56C1A52A0F800AAAA15 /* deblock.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = deblock.asm; path = ../../../common/x86/deblock.asm; sourceTree = "<group>"; };
+		CEF1D56D1A52A0F800AAAA15 /* expand_picture.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = expand_picture.asm; path = ../../../common/x86/expand_picture.asm; sourceTree = "<group>"; };
+		CEF1D56E1A52A0F800AAAA15 /* intra_pred_com.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = intra_pred_com.asm; path = ../../../common/x86/intra_pred_com.asm; sourceTree = "<group>"; };
+		CEF1D56F1A52A0F800AAAA15 /* mb_copy.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = mb_copy.asm; path = ../../../common/x86/mb_copy.asm; sourceTree = "<group>"; };
+		CEF1D5701A52A0F800AAAA15 /* mc_chroma.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = mc_chroma.asm; path = ../../../common/x86/mc_chroma.asm; sourceTree = "<group>"; };
+		CEF1D5711A52A0F800AAAA15 /* mc_luma.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = mc_luma.asm; path = ../../../common/x86/mc_luma.asm; sourceTree = "<group>"; };
+		CEF1D5721A52A0F800AAAA15 /* satd_sad.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = satd_sad.asm; path = ../../../common/x86/satd_sad.asm; sourceTree = "<group>"; };
+		CEF1D5731A52A0F800AAAA15 /* vaa.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = vaa.asm; path = ../../../common/x86/vaa.asm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +134,7 @@
 		CEC28FBE1A4AB2CE00777576 /* common */ = {
 			isa = PBXGroup;
 			children = (
+				CEF1D51D1A5271B500AAAA15 /* asm */,
 				CEC28FC01A4AB31E00777576 /* inc */,
 				CEC28FBF1A4AB2D600777576 /* src */,
 			);
@@ -152,6 +185,23 @@
 			name = inc;
 			sourceTree = "<group>";
 		};
+		CEF1D51D1A5271B500AAAA15 /* asm */ = {
+			isa = PBXGroup;
+			children = (
+				CEF1D56A1A52A0F800AAAA15 /* asm_inc.asm */,
+				CEF1D56B1A52A0F800AAAA15 /* cpuid.asm */,
+				CEF1D56C1A52A0F800AAAA15 /* deblock.asm */,
+				CEF1D56D1A52A0F800AAAA15 /* expand_picture.asm */,
+				CEF1D56E1A52A0F800AAAA15 /* intra_pred_com.asm */,
+				CEF1D56F1A52A0F800AAAA15 /* mb_copy.asm */,
+				CEF1D5701A52A0F800AAAA15 /* mc_chroma.asm */,
+				CEF1D5711A52A0F800AAAA15 /* mc_luma.asm */,
+				CEF1D5721A52A0F800AAAA15 /* satd_sad.asm */,
+				CEF1D5731A52A0F800AAAA15 /* vaa.asm */,
+			);
+			name = asm;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -192,6 +242,7 @@
 				CEC28FB51A4AB2B100777576 /* Headers */,
 			);
 			buildRules = (
+				CEF1D5511A5287C500AAAA15 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -236,13 +287,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEF1D5741A52A0F800AAAA15 /* asm_inc.asm in Sources */,
+				CEF1D57A1A52A0F800AAAA15 /* mc_chroma.asm in Sources */,
 				CEC28FCE1A4AB35400777576 /* cpu.cpp in Sources */,
+				CEF1D5751A52A0F800AAAA15 /* cpuid.asm in Sources */,
+				CEF1D5771A52A0F800AAAA15 /* expand_picture.asm in Sources */,
 				CEC28FCC1A4AB35400777576 /* common_tables.cpp in Sources */,
+				CEF1D57C1A52A0F800AAAA15 /* satd_sad.asm in Sources */,
 				CEC28FD11A4AB35400777576 /* expand_pic.cpp in Sources */,
 				CEC28FD01A4AB35400777576 /* deblocking_common.cpp in Sources */,
+				CEF1D5781A52A0F800AAAA15 /* intra_pred_com.asm in Sources */,
 				CEC28FCD1A4AB35400777576 /* copy_mb.cpp in Sources */,
 				CEC28FD21A4AB35400777576 /* intra_pred_common.cpp in Sources */,
+				CEF1D5761A52A0F800AAAA15 /* deblock.asm in Sources */,
+				CEF1D57B1A52A0F800AAAA15 /* mc_luma.asm in Sources */,
 				CEC28FD61A4AB35400777576 /* WelsThreadLib.cpp in Sources */,
+				CEF1D57D1A52A0F800AAAA15 /* vaa.asm in Sources */,
+				CEF1D5791A52A0F800AAAA15 /* mb_copy.asm in Sources */,
 				CEC28FD41A4AB35400777576 /* utils.cpp in Sources */,
 				CEC28FD51A4AB35400777576 /* welsCodecTrace.cpp in Sources */,
 				CEC28FCF1A4AB35400777576 /* crt_util_safe_x.cpp in Sources */,
@@ -331,6 +392,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -344,6 +408,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -372,6 +439,7 @@
 				CEC28FBD1A4AB2B100777576 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

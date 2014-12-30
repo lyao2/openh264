@@ -89,6 +89,14 @@
 		CEC2912E1A4ABF4A00777576 /* svc_set_mb_syn_cabac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC291101A4ABF4A00777576 /* svc_set_mb_syn_cabac.cpp */; };
 		CEC2912F1A4ABF4A00777576 /* svc_set_mb_syn_cavlc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC291111A4ABF4A00777576 /* svc_set_mb_syn_cavlc.cpp */; };
 		CEC291301A4ABF4A00777576 /* wels_preprocess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC291121A4ABF4A00777576 /* wels_preprocess.cpp */; };
+		CEF1D58D1A52A30700AAAA15 /* coeff.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5851A52A30700AAAA15 /* coeff.asm */; };
+		CEF1D58E1A52A30700AAAA15 /* dct.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5861A52A30700AAAA15 /* dct.asm */; };
+		CEF1D58F1A52A30700AAAA15 /* intra_pred.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5871A52A30700AAAA15 /* intra_pred.asm */; };
+		CEF1D5901A52A30700AAAA15 /* matrix_transpose.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5881A52A30700AAAA15 /* matrix_transpose.asm */; };
+		CEF1D5911A52A30700AAAA15 /* memzero.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5891A52A30700AAAA15 /* memzero.asm */; };
+		CEF1D5921A52A30700AAAA15 /* quant.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D58A1A52A30700AAAA15 /* quant.asm */; };
+		CEF1D5931A52A30700AAAA15 /* sample_sc.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D58B1A52A30700AAAA15 /* sample_sc.asm */; };
+		CEF1D5941A52A30700AAAA15 /* score.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D58C1A52A30700AAAA15 /* score.asm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -176,6 +184,14 @@
 		CEC291101A4ABF4A00777576 /* svc_set_mb_syn_cabac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = svc_set_mb_syn_cabac.cpp; path = ../../../encoder/core/src/svc_set_mb_syn_cabac.cpp; sourceTree = "<group>"; };
 		CEC291111A4ABF4A00777576 /* svc_set_mb_syn_cavlc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = svc_set_mb_syn_cavlc.cpp; path = ../../../encoder/core/src/svc_set_mb_syn_cavlc.cpp; sourceTree = "<group>"; };
 		CEC291121A4ABF4A00777576 /* wels_preprocess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wels_preprocess.cpp; path = ../../../encoder/core/src/wels_preprocess.cpp; sourceTree = "<group>"; };
+		CEF1D5851A52A30700AAAA15 /* coeff.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = coeff.asm; path = ../../../encoder/core/x86/coeff.asm; sourceTree = "<group>"; };
+		CEF1D5861A52A30700AAAA15 /* dct.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = dct.asm; path = ../../../encoder/core/x86/dct.asm; sourceTree = "<group>"; };
+		CEF1D5871A52A30700AAAA15 /* intra_pred.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = intra_pred.asm; path = ../../../encoder/core/x86/intra_pred.asm; sourceTree = "<group>"; };
+		CEF1D5881A52A30700AAAA15 /* matrix_transpose.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = matrix_transpose.asm; path = ../../../encoder/core/x86/matrix_transpose.asm; sourceTree = "<group>"; };
+		CEF1D5891A52A30700AAAA15 /* memzero.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = memzero.asm; path = ../../../encoder/core/x86/memzero.asm; sourceTree = "<group>"; };
+		CEF1D58A1A52A30700AAAA15 /* quant.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = quant.asm; path = ../../../encoder/core/x86/quant.asm; sourceTree = "<group>"; };
+		CEF1D58B1A52A30700AAAA15 /* sample_sc.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = sample_sc.asm; path = ../../../encoder/core/x86/sample_sc.asm; sourceTree = "<group>"; };
+		CEF1D58C1A52A30700AAAA15 /* score.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = score.asm; path = ../../../encoder/core/x86/score.asm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +235,7 @@
 		CEC290861A4ABD5800777576 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				CEF1D5081A5270CC00AAAA15 /* asm */,
 				CEC290921A4ABE4600777576 /* inc */,
 				CEC290911A4ABE3900777576 /* src */,
 			);
@@ -344,6 +361,21 @@
 			name = inc;
 			sourceTree = "<group>";
 		};
+		CEF1D5081A5270CC00AAAA15 /* asm */ = {
+			isa = PBXGroup;
+			children = (
+				CEF1D5851A52A30700AAAA15 /* coeff.asm */,
+				CEF1D5861A52A30700AAAA15 /* dct.asm */,
+				CEF1D5871A52A30700AAAA15 /* intra_pred.asm */,
+				CEF1D5881A52A30700AAAA15 /* matrix_transpose.asm */,
+				CEF1D5891A52A30700AAAA15 /* memzero.asm */,
+				CEF1D58A1A52A30700AAAA15 /* quant.asm */,
+				CEF1D58B1A52A30700AAAA15 /* sample_sc.asm */,
+				CEF1D58C1A52A30700AAAA15 /* score.asm */,
+			);
+			name = asm;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -465,28 +497,36 @@
 				CEC291231A4ABF4A00777576 /* ref_list_mgr_svc.cpp in Sources */,
 				CEC291181A4ABF4A00777576 /* encoder_ext.cpp in Sources */,
 				CEC291301A4ABF4A00777576 /* wels_preprocess.cpp in Sources */,
+				CEF1D5901A52A30700AAAA15 /* matrix_transpose.asm in Sources */,
 				CEC291141A4ABF4A00777576 /* deblocking.cpp in Sources */,
 				CEC2911B1A4ABF4A00777576 /* mc.cpp in Sources */,
 				CEC291211A4ABF4A00777576 /* property.cpp in Sources */,
 				CEC2912F1A4ABF4A00777576 /* svc_set_mb_syn_cavlc.cpp in Sources */,
+				CEF1D58E1A52A30700AAAA15 /* dct.asm in Sources */,
 				CEC291221A4ABF4A00777576 /* ratectl.cpp in Sources */,
 				CEC2911D1A4ABF4A00777576 /* memory_align.cpp in Sources */,
 				CEC291261A4ABF4A00777576 /* set_mb_syn_cavlc.cpp in Sources */,
+				CEF1D58F1A52A30700AAAA15 /* intra_pred.asm in Sources */,
+				CEF1D5931A52A30700AAAA15 /* sample_sc.asm in Sources */,
 				CEC2911E1A4ABF4A00777576 /* mv_pred.cpp in Sources */,
 				CEC291241A4ABF4A00777576 /* sample.cpp in Sources */,
 				CEC2911C1A4ABF4A00777576 /* md.cpp in Sources */,
 				CEC2912E1A4ABF4A00777576 /* svc_set_mb_syn_cabac.cpp in Sources */,
 				CEC291171A4ABF4A00777576 /* encoder_data_tables.cpp in Sources */,
 				CEC291291A4ABF4A00777576 /* svc_enc_slice_segment.cpp in Sources */,
+				CEF1D5941A52A30700AAAA15 /* score.asm in Sources */,
 				CEC291151A4ABF4A00777576 /* decode_mb_aux.cpp in Sources */,
 				CEC2912A1A4ABF4A00777576 /* svc_encode_mb.cpp in Sources */,
 				CEC291161A4ABF4A00777576 /* encode_mb_aux.cpp in Sources */,
 				CEC2912D1A4ABF4A00777576 /* svc_motion_estimate.cpp in Sources */,
+				CEF1D5921A52A30700AAAA15 /* quant.asm in Sources */,
 				CEC291201A4ABF4A00777576 /* picture_handle.cpp in Sources */,
 				CEC2911A1A4ABF4A00777576 /* get_intra_predictor.cpp in Sources */,
 				CEC291251A4ABF4A00777576 /* set_mb_syn_cabac.cpp in Sources */,
 				CEC2911F1A4ABF4A00777576 /* nal_encap.cpp in Sources */,
+				CEF1D5911A52A30700AAAA15 /* memzero.asm in Sources */,
 				CEC2912C1A4ABF4A00777576 /* svc_mode_decision.cpp in Sources */,
+				CEF1D58D1A52A30700AAAA15 /* coeff.asm in Sources */,
 				CEC2912B1A4ABF4A00777576 /* svc_encode_slice.cpp in Sources */,
 				CEC291131A4ABF4A00777576 /* au_set.cpp in Sources */,
 				CEC2908E1A4ABE1500777576 /* welsEncoderExt.cpp in Sources */,

@@ -65,6 +65,8 @@
 		CEC291B31A4AC28D00777576 /* wels_const.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC291911A4AC28D00777576 /* wels_const.h */; };
 		CEC291B81A4AC2EC00777576 /* welsDecoderExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC291B71A4AC2EC00777576 /* welsDecoderExt.cpp */; };
 		CEC291BA1A4AC2FF00777576 /* welsDecoderExt.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC291B91A4AC2FF00777576 /* welsDecoderExt.h */; };
+		CEF1D5981A52A44100AAAA15 /* dct.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5961A52A44100AAAA15 /* dct.asm */; };
+		CEF1D5991A52A44100AAAA15 /* intra_pred.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5971A52A44100AAAA15 /* intra_pred.asm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -128,6 +130,8 @@
 		CEC291B61A4AC2EC00777576 /* wels_dec_export.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wels_dec_export.def; path = ../../../decoder/plus/src/wels_dec_export.def; sourceTree = "<group>"; };
 		CEC291B71A4AC2EC00777576 /* welsDecoderExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = welsDecoderExt.cpp; path = ../../../decoder/plus/src/welsDecoderExt.cpp; sourceTree = "<group>"; };
 		CEC291B91A4AC2FF00777576 /* welsDecoderExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = welsDecoderExt.h; path = ../../../decoder/plus/inc/welsDecoderExt.h; sourceTree = "<group>"; };
+		CEF1D5961A52A44100AAAA15 /* dct.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = dct.asm; path = ../../../decoder/core/x86/dct.asm; sourceTree = "<group>"; };
+		CEF1D5971A52A44100AAAA15 /* intra_pred.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = intra_pred.asm; path = ../../../decoder/core/x86/intra_pred.asm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +175,7 @@
 		CEC291421A4AC24C00777576 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				CEF1D5951A52A3EC00AAAA15 /* asm */,
 				CEC291451A4AC26B00777576 /* inc */,
 				CEC291441A4AC26600777576 /* src */,
 			);
@@ -270,6 +275,15 @@
 				CEC291B91A4AC2FF00777576 /* welsDecoderExt.h */,
 			);
 			name = inc;
+			sourceTree = "<group>";
+		};
+		CEF1D5951A52A3EC00AAAA15 /* asm */ = {
+			isa = PBXGroup;
+			children = (
+				CEF1D5961A52A44100AAAA15 /* dct.asm */,
+				CEF1D5971A52A44100AAAA15 /* intra_pred.asm */,
+			);
+			name = asm;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -384,6 +398,7 @@
 				CEC2915E1A4AC27A00777576 /* deblocking.cpp in Sources */,
 				CEC2915F1A4AC27A00777576 /* decode_mb_aux.cpp in Sources */,
 				CEC291631A4AC27A00777576 /* decoder.cpp in Sources */,
+				CEF1D5981A52A44100AAAA15 /* dct.asm in Sources */,
 				CEC291671A4AC27A00777576 /* manage_dec_ref.cpp in Sources */,
 				CEC2915C1A4AC27A00777576 /* bit_stream.cpp in Sources */,
 				CEC291B81A4AC2EC00777576 /* welsDecoderExt.cpp in Sources */,
@@ -393,6 +408,7 @@
 				CEC291661A4AC27A00777576 /* get_intra_predictor.cpp in Sources */,
 				CEC291651A4AC27A00777576 /* fmo.cpp in Sources */,
 				CEC291601A4AC27A00777576 /* decode_slice.cpp in Sources */,
+				CEF1D5991A52A44100AAAA15 /* intra_pred.asm in Sources */,
 				CEC2916E1A4AC27A00777576 /* pic_queue.cpp in Sources */,
 				CEC2915D1A4AC27A00777576 /* cabac_decoder.cpp in Sources */,
 			);

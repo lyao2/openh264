@@ -42,6 +42,9 @@
 		CEC290721A4ABBA000777576 /* WelsFrameWork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC290671A4ABBA000777576 /* WelsFrameWork.cpp */; };
 		CEC290731A4ABBA000777576 /* WelsFrameWork.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC290681A4ABBA000777576 /* WelsFrameWork.h */; };
 		CEC290741A4ABBA000777576 /* WelsFrameWorkEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC290691A4ABBA000777576 /* WelsFrameWorkEx.cpp */; };
+		CEF1D5821A52A27300AAAA15 /* denoisefilter.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D57F1A52A27300AAAA15 /* denoisefilter.asm */; };
+		CEF1D5831A52A27300AAAA15 /* downsample_bilinear.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5801A52A27300AAAA15 /* downsample_bilinear.asm */; };
+		CEF1D5841A52A27300AAAA15 /* vaa.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D5811A52A27300AAAA15 /* vaa.asm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +86,9 @@
 		CEC290691A4ABBA000777576 /* WelsFrameWorkEx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WelsFrameWorkEx.cpp; path = ../../../processing/src/common/WelsFrameWorkEx.cpp; sourceTree = "<group>"; };
 		CEC2906A1A4ABBA000777576 /* WelsVP.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = WelsVP.def; path = ../../../processing/src/common/WelsVP.def; sourceTree = "<group>"; };
 		CEC2906B1A4ABBA000777576 /* WelsVP.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = WelsVP.rc; path = ../../../processing/src/common/WelsVP.rc; sourceTree = "<group>"; };
+		CEF1D57F1A52A27300AAAA15 /* denoisefilter.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = denoisefilter.asm; path = ../../../processing/src/x86/denoisefilter.asm; sourceTree = "<group>"; };
+		CEF1D5801A52A27300AAAA15 /* downsample_bilinear.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = downsample_bilinear.asm; path = ../../../processing/src/x86/downsample_bilinear.asm; sourceTree = "<group>"; };
+		CEF1D5811A52A27300AAAA15 /* vaa.asm */ = {isa = PBXFileReference; explicitFileType = sourcecode.nasm; name = vaa.asm; path = ../../../processing/src/x86/vaa.asm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +132,7 @@
 		CEC2900D1A4AB4C400777576 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CEF1D57E1A52A24600AAAA15 /* asm */,
 				CEC290581A4ABA2000777576 /* vaacalc */,
 				CEC2904F1A4AB9F400777576 /* scrolldetection */,
 				CEC2904A1A4AB9C700777576 /* scenechangedetection */,
@@ -253,6 +260,16 @@
 			name = vaacalc;
 			sourceTree = "<group>";
 		};
+		CEF1D57E1A52A24600AAAA15 /* asm */ = {
+			isa = PBXGroup;
+			children = (
+				CEF1D57F1A52A27300AAAA15 /* denoisefilter.asm */,
+				CEF1D5801A52A27300AAAA15 /* downsample_bilinear.asm */,
+				CEF1D5811A52A27300AAAA15 /* vaa.asm */,
+			);
+			name = asm;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -338,13 +355,16 @@
 			files = (
 				CEC290541A4ABA1900777576 /* ScrollDetection.cpp in Sources */,
 				CEC2905D1A4ABA3600777576 /* vaacalculation.cpp in Sources */,
+				CEF1D5841A52A27300AAAA15 /* vaa.asm in Sources */,
 				CEC2903A1A4AB97F00777576 /* denoise.cpp in Sources */,
 				CEC290421A4AB99900777576 /* downsamplefuncs.cpp in Sources */,
 				CEC290121A4AB88300777576 /* AdaptiveQuantization.cpp in Sources */,
 				CEC2906D1A4ABBA000777576 /* memory.cpp in Sources */,
 				CEC290561A4ABA1900777576 /* ScrollDetectionFuncs.cpp in Sources */,
+				CEF1D5821A52A27300AAAA15 /* denoisefilter.asm in Sources */,
 				CEC2905C1A4ABA3600777576 /* vaacalcfuncs.cpp in Sources */,
 				CEC290491A4AB9C200777576 /* imagerotatefuncs.cpp in Sources */,
+				CEF1D5831A52A27300AAAA15 /* downsample_bilinear.asm in Sources */,
 				CEC290741A4ABBA000777576 /* WelsFrameWorkEx.cpp in Sources */,
 				CEC290171A4AB89C00777576 /* BackgroundDetection.cpp in Sources */,
 				CEC2904D1A4AB9F100777576 /* SceneChangeDetection.cpp in Sources */,
