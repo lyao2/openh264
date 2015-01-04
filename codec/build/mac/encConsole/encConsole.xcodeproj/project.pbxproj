@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CEC277911A4BE8FF00A5B33B /* libwelsenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CEC277901A4BE8FF00A5B33B /* libwelsenc.a */; };
+		CE242BA31A592BC2001A9E92 /* libprocessing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE242BA21A592BC2001A9E92 /* libprocessing.a */; };
+		CE242BA51A592BC7001A9E92 /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE242BA41A592BC7001A9E92 /* libcommon.a */; };
+		CE242BA71A592C02001A9E92 /* libwelsenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE242BA61A592C02001A9E92 /* libwelsenc.a */; };
 		CEC2779E1A4C0D5E00A5B33B /* welsenc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC2779D1A4C0D5E00A5B33B /* welsenc.cpp */; };
 		CEC277A01A4C0D7700A5B33B /* read_config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC2779F1A4C0D7700A5B33B /* read_config.cpp */; };
 /* End PBXBuildFile section */
@@ -25,8 +27,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE242BA21A592BC2001A9E92 /* libprocessing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libprocessing.a; path = ../processing/build/Debug/libprocessing.a; sourceTree = "<group>"; };
+		CE242BA41A592BC7001A9E92 /* libcommon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcommon.a; path = ../common/build/Debug/libcommon.a; sourceTree = "<group>"; };
+		CE242BA61A592C02001A9E92 /* libwelsenc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwelsenc.a; path = "../../../../../../../../Library/Developer/Xcode/DerivedData/openh264-dazbogfrigymgpejrufawdhvrwna/Build/Products/Debug/libwelsenc.a"; sourceTree = "<group>"; };
 		CEC277791A4BB42400A5B33B /* encConsole */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = encConsole; sourceTree = BUILT_PRODUCTS_DIR; };
-		CEC277901A4BE8FF00A5B33B /* libwelsenc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwelsenc.a; path = "../../../../../../../../Library/Developer/Xcode/DerivedData/openh264-efkppfuvruoybbbuqjjyavavkfgo/Build/Products/Debug/libwelsenc.a"; sourceTree = "<group>"; };
 		CEC2779D1A4C0D5E00A5B33B /* welsenc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = welsenc.cpp; path = ../../../console/enc/src/welsenc.cpp; sourceTree = "<group>"; };
 		CEC2779F1A4C0D7700A5B33B /* read_config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = read_config.cpp; path = ../../../console/common/src/read_config.cpp; sourceTree = "<group>"; };
 		CEC277A11A4C0D8200A5B33B /* read_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = read_config.h; path = ../../../console/common/inc/read_config.h; sourceTree = "<group>"; };
@@ -37,7 +41,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CEC277911A4BE8FF00A5B33B /* libwelsenc.a in Frameworks */,
+				CE242BA71A592C02001A9E92 /* libwelsenc.a in Frameworks */,
+				CE242BA51A592BC7001A9E92 /* libcommon.a in Frameworks */,
+				CE242BA31A592BC2001A9E92 /* libprocessing.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,8 +53,10 @@
 		CEC277701A4BB42400A5B33B = {
 			isa = PBXGroup;
 			children = (
+				CE242BA61A592C02001A9E92 /* libwelsenc.a */,
+				CE242BA41A592BC7001A9E92 /* libcommon.a */,
+				CE242BA21A592BC2001A9E92 /* libprocessing.a */,
 				CEC2779C1A4C0D4900A5B33B /* encconsole */,
-				CEC277901A4BE8FF00A5B33B /* libwelsenc.a */,
 				CEC2777A1A4BB42400A5B33B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -224,6 +232,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/openh264-efkppfuvruoybbbuqjjyavavkfgo/Build/Products/Debug",
+					/Users/lyao2/Downloads/github/openh264_lyao2_150104/openh264/codec/build/mac/processing/build/Debug,
+					/Users/lyao2/Downloads/github/openh264_lyao2_150104/openh264/codec/build/mac/common/build/Debug,
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/openh264-dazbogfrigymgpejrufawdhvrwna/Build/Products/Debug",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -244,6 +255,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/openh264-efkppfuvruoybbbuqjjyavavkfgo/Build/Products/Debug",
+					/Users/lyao2/Downloads/github/openh264_lyao2_150104/openh264/codec/build/mac/processing/build/Debug,
+					/Users/lyao2/Downloads/github/openh264_lyao2_150104/openh264/codec/build/mac/common/build/Debug,
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/openh264-dazbogfrigymgpejrufawdhvrwna/Build/Products/Debug",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

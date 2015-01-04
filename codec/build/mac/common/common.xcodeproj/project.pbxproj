@@ -51,12 +51,13 @@
 /* Begin PBXBuildRule section */
 		CEF1D5511A5287C500AAAA15 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.gcc;
+			compilerSpec = com.apple.compilers.proxy.script;
 			fileType = sourcecode.nasm;
 			isEditable = 1;
 			outputFiles = (
+				"$(OBJECT_FILE_DIR)/$(arch)/$(INPUT_FILE_BASE).o",
 			);
-			script = "nasm=\"\"\nnasm_list=(nasm /usr/bin/nasm /opt/local/bin/nasm)\n";
+			script = "nasm=\"\"\nnasm_list=(nasm /usr/bin/nasm /opt/local/bin/nasm)\nfor cmd in ${nasm_list[@]}; do\nver=`$cmd -v 2>/dev/null | awk '{print $3}'`\n[[ $ver =~ ^2\\.1[0-9] ]] && nasm=$cmd && break\ndone\n[ \"$nasm\" = \"\" ] && echo \"[Error] pls install nasm (2.10+)\" 1>&2 && exit 1\n\n[ \"$arch\" = \"x86_64\" ] && asflags=\"-f macho64 -DUNIX64 -DPREFIX\" || asflags=\"-f macho32 -DX86_32 -DPREFIX\"\n$nasm -I ../../../common/x86/ $asflags $INPUT_FILE_PATH -o $OBJECT_FILE_DIR/$arch/$INPUT_FILE_BASE.o\n";
 		};
 /* End PBXBuildRule section */
 
@@ -391,13 +392,19 @@
 		CEC28FBC1A4AB2B100777576 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_X86_VECTOR_INSTRUCTIONS = default;
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
 				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					X86_ASM,
+					"DEBUG=1",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../../common/x86",
 					"$(SRCROOT)/../../../api/svc",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -407,6 +414,7 @@
 		CEC28FBD1A4AB2B100777576 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_X86_VECTOR_INSTRUCTIONS = default;
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
@@ -414,6 +422,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../../common/x86",
 					"$(SRCROOT)/../../../api/svc",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";

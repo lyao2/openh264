@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CEC2778F1A4BE8AF00A5B33B /* libprocessing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CEC2778E1A4BE8AF00A5B33B /* libprocessing.a */; };
 		CEC2908E1A4ABE1500777576 /* welsEncoderExt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC2908C1A4ABE1500777576 /* welsEncoderExt.cpp */; };
 		CEC290901A4ABE2A00777576 /* welsEncoderExt.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC2908F1A4ABE2A00777576 /* welsEncoderExt.h */; };
 		CEC290C41A4ABF3E00777576 /* as264_common.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC290931A4ABF3E00777576 /* as264_common.h */; };
@@ -99,8 +98,29 @@
 		CEF1D5941A52A30700AAAA15 /* score.asm in Sources */ = {isa = PBXBuildFile; fileRef = CEF1D58C1A52A30700AAAA15 /* score.asm */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildRule section */
+		CE242B941A592937001A9E92 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = sourcecode.nasm;
+			isEditable = 1;
+			outputFiles = (
+				"$(OBJECT_FILE_DIR)/$(arch)/$(INPUT_FILE_BASE).o",
+			);
+			script = "nasm=\"\"\nnasm_list=(nasm /usr/bin/nasm /opt/local/bin/nasm)\nfor cmd in ${nasm_list[@]}; do\nver=`$cmd -v 2>/dev/null | awk '{print $3}'`\n[[ $ver =~ ^2\\.1[0-9] ]] && nasm=$cmd && break\ndone\n[ \"$nasm\" = \"\" ] && echo \"[Error] pls install nasm (2.10+)\" 1>&2 && exit 1\n\n[ \"$arch\" = \"x86_64\" ] && asflags=\"-f macho64 -DUNIX64 -DPREFIX\" || asflags=\"-f macho32 -DX86_32 -DPREFIX\"\n$nasm -I ../../../common/x86/ $asflags $INPUT_FILE_PATH -o $OBJECT_FILE_DIR/$arch/$INPUT_FILE_BASE.o";
+		};
+		CE242B951A592938001A9E92 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = "com.apple.build-tasks.copy-plist-file";
+			fileType = text.plist;
+			isEditable = 1;
+			outputFiles = (
+			);
+			script = "# builtin-copyPlist\n";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXFileReference section */
-		CEC2778E1A4BE8AF00A5B33B /* libprocessing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libprocessing.a; path = "../../../../../../../../Library/Developer/Xcode/DerivedData/openh264-efkppfuvruoybbbuqjjyavavkfgo/Build/Products/Debug/libprocessing.a"; sourceTree = "<group>"; };
 		CEC2907E1A4ABD3900777576 /* libwelsenc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwelsenc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEC2908B1A4ABE1500777576 /* wels_enc_export.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wels_enc_export.def; path = ../../../encoder/plus/src/wels_enc_export.def; sourceTree = "<group>"; };
 		CEC2908C1A4ABE1500777576 /* welsEncoderExt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = welsEncoderExt.cpp; path = ../../../encoder/plus/src/welsEncoderExt.cpp; sourceTree = "<group>"; };
@@ -199,7 +219,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CEC2778F1A4BE8AF00A5B33B /* libprocessing.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,7 +228,6 @@
 		CEC290751A4ABD3900777576 = {
 			isa = PBXGroup;
 			children = (
-				CEC2778E1A4BE8AF00A5B33B /* libprocessing.a */,
 				CEC290851A4ABD4F00777576 /* encoder */,
 				CEC2907F1A4ABD3900777576 /* Products */,
 			);
@@ -448,6 +466,8 @@
 				CEC2907C1A4ABD3900777576 /* Headers */,
 			);
 			buildRules = (
+				CE242B951A592938001A9E92 /* PBXBuildRule */,
+				CE242B941A592937001A9E92 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
